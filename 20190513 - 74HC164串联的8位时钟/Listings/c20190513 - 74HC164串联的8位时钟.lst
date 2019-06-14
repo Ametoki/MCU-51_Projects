@@ -1,0 +1,210 @@
+C51 COMPILER V9.56.0.0   C20190513___74HC164______8______                                  05/15/2019 01:02:25 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE C20190513___74HC164______8______
+OBJECT MODULE PLACED IN .\Objects\c20190513 - 74HC164������8λʱ��.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\keil\C51\BIN\C51.EXE c20190513 - 74HC164������8λʱ��.c OPTIMIZE(8,SPEED) BR
+                    -OWSE DEBUG OBJECTEXTEND PRINT(.\Listings\c20190513 - 74HC164������8λʱ��.lst) TABS(2) OBJECT(.\Objects\c20190513 - 74HC
+                    -164������8λʱ��.obj)
+
+line level    source
+
+   1          /***
+   2          适用于11.0592MHz的实验板的精准秒表
+   3          功能介绍：
+   4            外部中断0按键：开始&暂停
+   5            外部中断1按键：清零并停止
+   6            矩阵按键功能：
+   7            SEC+秒加   SEC-秒减
+   8            MIN+分加   MIN-分减
+   9            HOUR+时加  HOUR-时减
+  10            QUICK上一次调整的数变成进制的一半，例如上一次更改了分钟，就会把分钟改为3
+             -0。
+  11            调整时间后可以立即刷新显示，暂停、停止时也可以调整时间
+  12            可以使用矩阵按键中的QUICK按键快速调时
+  13          ***/
+  14          #include<regx52.h>
+  15          unsigned char code Disp_Tab_2[] = {0x77,0x14,0xb3,0xb6,0xd4,0xe6,0xe7,0x34,0xf7,0xf6,0x00};
+  16          unsigned char i, j, sec = 0, min = 0, hour = 0, flag[4] = {0};//flag数组
+  17          unsigned int t = 0;
+  18          unsigned long int temp;
+  19          void Init(void);
+  20          void Disp(void);
+  21          void Button_Switch(void);
+  22          void main(void)
+  23          {
+  24   1        Init();
+  25   1        while(1)
+  26   1        {
+  27   2          for(hour = 0;hour <= 24;hour++)
+  28   2          {
+  29   3            for(min = 0;min <= 59;min++)
+  30   3            {
+  31   4              for(sec = 0;sec <= 59;sec++)
+  32   4              {
+  33   5                /*flag[0]为时间判断，在定时中断里每过1秒flag[0]会置1，
+  34   5                在main函数中用while(!flag[0])操作反复查询并等待flag[0]变为1，
+  35   5                flag[0]为1时跳出键盘扫描循环，执行sec变量的+1操作。
+  36   5                */
+  37   5                while(!flag[0])//flag为1时跳出循环
+  38   5                  Button_Switch();
+  39   5                flag[0] = 0;
+  40   5              }
+  41   4            }
+  42   3          }
+  43   2        }
+  44   1      }
+  45          void Init(void)//初始化函数
+  46          {
+  47   1        TMOD = 0x02;//定时计数器0工作方式2
+  48   1        SCON = 0x00;
+  49   1        TH0 = 0x80;//初值为十进制的128，每过256 - 128 = 128个机器周期就溢出并向CPU申请中�
+             -�
+  50   1        TL0 = 0x80;
+  51   1        ET0 = 1;
+C51 COMPILER V9.56.0.0   C20190513___74HC164______8______                                  05/15/2019 01:02:25 PAGE 2   
+
+  52   1        EX0 = 1;
+  53   1        EX1 = 1;
+  54   1        IT0 = 1;
+  55   1        EA = 1;
+  56   1        P2 = 0xff;
+  57   1        Disp();
+  58   1      }
+  59          void Disp(void)//显示函数
+  60          {
+  61   1        temp = sec + min * 1E2 + hour * 1E4;//将秒、分、时连起来保存至一个长整型变量中，以�
+             -��减后面的代码量
+  62   1        for(i = 0;i < 8;i++)
+  63   1        {
+  64   2          if(i == 2||i == 5)
+  65   2            SBUF = 0x80;
+  66   2          else
+  67   2          {
+  68   3            SBUF = Disp_Tab_2[temp % 10];//将temp中的数字逐位发送至74HC164
+  69   3            temp /= 10;
+  70   3          }
+  71   2        }
+  72   1      }
+  73          void Button_Switch(void)
+  74          {
+  75   1        switch(P2 & 0x07)
+  76   1        {
+  77   2          case 0:
+  78   2            while(P2 ^ 0xff);//等待按键抬起
+  79   2            if(sec <= 58)
+  80   2              sec++;
+  81   2            else
+  82   2              sec = 0;
+  83   2            flag[1] = 1;//标记当前操作的数是秒、分还是时，对第7个按键的功能有用
+  84   2            Disp();//每次按键操作后刷新一次数码管显示
+  85   2            break;
+  86   2          case 1:
+  87   2            while(P2 ^ 0xff);
+  88   2            if(min <= 58)
+  89   2              min++;
+  90   2            else
+  91   2              min = 0;
+  92   2            flag[2] = 1;
+  93   2            Disp();
+  94   2            break;
+  95   2          case 2:
+  96   2            while(P2 ^ 0xff);
+  97   2            if(hour <= 22)
+  98   2              hour++;
+  99   2            else
+ 100   2              hour = 0;
+ 101   2            flag[3] = 1;
+ 102   2            Disp();
+ 103   2            break;
+ 104   2          case 3:
+ 105   2            while(P2 ^ 0xff);
+ 106   2            if(sec >= 2)
+ 107   2              sec--;
+ 108   2            else
+ 109   2              sec = 59;
+ 110   2            flag[1] = 1;
+ 111   2            Disp();
+ 112   2            break;
+C51 COMPILER V9.56.0.0   C20190513___74HC164______8______                                  05/15/2019 01:02:25 PAGE 3   
+
+ 113   2          case 4:
+ 114   2            while(P2 ^ 0xff);
+ 115   2            if(min >= 1)
+ 116   2              min--;
+ 117   2            else
+ 118   2              min = 59;
+ 119   2            flag[2] = 1;
+ 120   2            Disp();
+ 121   2            break;
+ 122   2          case 5:
+ 123   2            while(P2 ^ 0xff);
+ 124   2            if(hour >= 1)
+ 125   2              hour--;
+ 126   2            else
+ 127   2              hour = 23;
+ 128   2            flag[3] = 1;
+ 129   2            Disp();
+ 130   2            break;
+ 131   2          case 6:
+ 132   2            while(P2 ^ 0xff);
+ 133   2            for(j = 1;j < 4;j++)//用循环查询上次用按键改变的数位是秒、分还是时
+ 134   2            {
+ 135   3              if(flag[j] == 1)
+ 136   3              {
+ 137   4                if(j == 1)
+ 138   4                  sec = 30;
+ 139   4                else if(j == 2)
+ 140   4                  min = 30;
+ 141   4                else if(j == 3)
+ 142   4                  hour = 12;
+ 143   4                flag[j] = 0;//将相应的flag标志位置零
+ 144   4              }
+ 145   3            }
+ 146   2            Disp();
+ 147   2            break;
+ 148   2          case 7: break;
+ 149   2        }
+ 150   1      }
+ 151          void Start_Pause(void) interrupt 0//开始&暂停函数
+ 152          {
+ 153   1        EX0 = 0;
+ 154   1        TR0 = ~TR0;
+ 155   1        EX0 = 1;
+ 156   1      }
+ 157          void Timer0(void) interrupt 1
+ 158          {
+ 159   1        t++;
+ 160   1        /***128 * 7200 = 921600，在11.0592Mhz晶振下的921600个机器周期，
+ 161   1        除以(11.0592 / 12)的比例关系，正好是1000000微秒，即1秒***/
+ 162   1        if(t == 7200)
+ 163   1        {
+ 164   2          t = 0;
+ 165   2          flag[0] = 1;//每过1秒flag[0]置1，以在main函数里进行sec+1
+ 166   2          Disp();
+ 167   2        }
+ 168   1      }
+ 169          void Reset(void) interrupt 2
+ 170          {
+ 171   1        TR0 = 0;
+ 172   1        sec = 0;
+ 173   1        min = 0;
+ 174   1        hour = 0;
+C51 COMPILER V9.56.0.0   C20190513___74HC164______8______                                  05/15/2019 01:02:25 PAGE 4   
+
+ 175   1        Disp();
+ 176   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    646    ----
+   CONSTANT SIZE    =     11    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     15    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

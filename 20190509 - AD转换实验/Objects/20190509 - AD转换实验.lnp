@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\20190509 - AD转换实验.obj" 
+TO ".\Objects\20190509 - AD转换实验" 
+PRINT(".\Listings\20190509 - AD转换实验.m51") RAMSIZE(256) 

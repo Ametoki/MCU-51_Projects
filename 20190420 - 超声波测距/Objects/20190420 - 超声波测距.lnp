@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\20190420 - ³¬Éù²¨²â¾à.obj" 
+TO ".\Objects\20190420 - ³¬Éù²¨²â¾à" 
+PRINT(".\Listings\20190420 - ³¬Éù²¨²â¾à.m51") RAMSIZE(256) 

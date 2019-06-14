@@ -1,0 +1,130 @@
+C51 COMPILER V9.56.0.0   20190408_________                                                 04/09/2019 09:11:25 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE 20190408_________
+OBJECT MODULE PLACED IN .\Objects\20190408 - 交通灯.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\keil\C51\BIN\C51.EXE 20190408 - 交通灯.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJE
+                    -CTEXTEND PRINT(.\Listings\20190408 - 交通灯.lst) TABS(2) OBJECT(.\Objects\20190408 - 交通灯.obj)
+
+line level    source
+
+   1          #include<regx52.h>
+   2          #define ON 0
+   3          #define OFF 1
+   4          sbit HR = P1^0;
+   5          sbit HY = P1^1;
+   6          sbit HG = P1^2;
+   7          sbit LR = P1^3;
+   8          sbit LY = P1^4;
+   9          sbit LG = P1^5;
+  10          //共阴极数码管字模0 - 9 //增加“-”符号
+  11          unsigned char code Disp_Tab[] = {0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,0x40,0xbf};
+  12          void delay(unsigned int xms);
+  13          void main(void)
+  14          {
+  15   1        unsigned int i;
+  16   1        P1 = 0xf3;//P1口初值，行绿灯亮，列红灯亮
+  17   1        P0 = 0x00;//数码管2初始化
+  18   1        P2 = 0x00;//数码管1初始化
+  19   1        while(1)
+  20   1        {
+  21   2          if(~HY)//判断行黄灯是否亮，若亮则熄灭，垂直方向亮绿灯
+  22   2          {
+  23   3            HY = ~HY;
+  24   3            LG = ~LG;
+  25   3          }
+  26   2          else if(~LY)//判断列黄灯是否亮，若亮则熄灭，垂直方向亮绿灯
+  27   2          {
+  28   3            LY = ~LY;
+  29   3            HG = ~HG;
+  30   3          }
+  31   2          for(i = 4;i > 0;i--)
+  32   2          {
+  33   3            if(~HG)//行绿灯亮时数码管1显示倒计时
+  34   3              P2 = Disp_Tab[i];
+  35   3            else if(~LG)//列绿灯亮时数码管2显示倒计时
+  36   3              P0 = Disp_Tab[i];
+  37   3            delay(1000);
+  38   3          }
+  39   2          if(~HG)
+  40   2            P2 = Disp_Tab[0];//绿灯闪烁时对应数码管显示0
+  41   2          else 
+  42   2            P0 = Disp_Tab[0];
+  43   2          for(i = 0;i < 9;i++)
+  44   2          {
+  45   3            if(~LR)//若列红灯在亮，闪行绿灯
+  46   3              HG = ~HG;
+  47   3            else if(~HR)//若行红灯在亮，闪列绿灯
+  48   3              LG = ~LG;
+  49   3            delay(100);
+  50   3          }
+  51   2          P2 = 0x00;//数码管熄灭
+  52   2          P0 = 0x00;//数码管熄灭
+  53   2          if(~LR)//若列红灯在亮，点亮行黄灯
+  54   2            HY = ~HY;
+C51 COMPILER V9.56.0.0   20190408_________                                                 04/09/2019 09:11:25 PAGE 2   
+
+  55   2          else //若行红灯在亮，点亮列黄灯
+  56   2            LY = ~LY;
+  57   2          delay(2000);
+  58   2          HR = ~HR;//红灯状态取反
+  59   2          LR = ~LR;//红灯状态取反，进行下次循环
+  60   2      /*    HG = ON;
+  61   2          LR = ON;
+  62   2          for(i = 4;i > 0;i--)
+  63   2          {
+  64   2            P2 = Disp_Tab[i];
+  65   2            delay(1000);
+  66   2          }
+  67   2          P2 = Disp_Tab[0];
+  68   2          for(i = 0;i < 9;i++)
+  69   2          {
+  70   2            HG = ~HG;
+  71   2            delay(100);
+  72   2          }
+  73   2          P2 = 0x00;
+  74   2          HY = ON;
+  75   2          delay(2000);
+  76   2          HY = OFF;
+  77   2          HR = ON;//横向第一遍结束
+  78   2          LR = OFF;
+  79   2          LG = ON;
+  80   2          for(i = 4;i > 0;i--)
+  81   2          {
+  82   2            P0 = Disp_Tab[i];
+  83   2            delay(1000);
+  84   2          }
+  85   2          P0 = Disp_Tab[0];
+  86   2          for(i = 0;i < 9;i++)
+  87   2          {
+  88   2            LG = ~LG;
+  89   2            delay(100);
+  90   2          }
+  91   2          P0 = 0x00;
+  92   2          LY = ON;
+  93   2          delay(2000);
+  94   2          LY = OFF;
+  95   2          HR = OFF;
+  96   2      */
+  97   2        }
+  98   1      }
+  99          void delay(unsigned int xms)
+ 100          {
+ 101   1        unsigned int i,j;
+ 102   1        for(i=xms;i>0;i--)
+ 103   1          for(j=112;j>0;j--);
+ 104   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    225    ----
+   CONSTANT SIZE    =     12    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\20190402.obj" 
+TO ".\Objects\20190402" 
+PRINT(".\Listings\20190402.m51") RAMSIZE(256) 

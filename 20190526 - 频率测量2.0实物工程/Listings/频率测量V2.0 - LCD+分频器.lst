@@ -1,0 +1,391 @@
+C51 COMPILER V9.56.0.0   ________V2_0___LCD_______                                         05/26/2019 20:09:52 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE ________V2_0___LCD_______
+OBJECT MODULE PLACED IN .\Objects\∆µ¬ ≤‚¡øV2.0 - LCD+∑÷∆µ∆˜.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\keil\C51\BIN\C51.EXE ∆µ¬ ≤‚¡øV2.0 - LCD+∑÷∆µ∆˜.c OPTIMIZE(8,SPEED) BROWSE DE
+                    -BUG OBJECTEXTEND PRINT(.\Listings\∆µ¬ ≤‚¡øV2.0 - LCD+∑÷∆µ∆˜.lst) TABS(2) OBJECT(.\Objects\∆µ¬ ≤‚¡øV2.0 - LCD+∑÷∆µ∆˜.obj)
+
+line level    source
+
+   1          //È¢ëÁéáÊµãÈáè + 1602AÊòæÁ§∫Â±è
+   2          #include<regx52.h>
+   3          #include<intrins.h>
+   4          #define RS_CLR RS=0
+   5          #define RS_SET RS=1
+   6          #define RW_CLR RW=0
+   7          #define RW_SET RW=1
+   8          #define EN_CLR EN=0
+   9          #define EN_SET EN=1
+  10          #define DataPort P0
+  11          sbit RS = P1^0;
+  12          sbit RW = P1^1;
+  13          sbit EN = P2^5;
+  14          sbit ADD_A = P3^2;
+  15          sbit ADD_B = P3^3;
+  16          sbit ADD_C = P3^4;
+  17          sbit Pulse = P3^5;
+  18          bit Range_Mode, tag_flag = 0, dis_flag, first_flag;
+  19          unsigned char code Char_Num[]="0123456789", Division[8] = {1, 2, 4, 8, 16, 32, 64, 128};
+  20          unsigned long int Fre[8] = {0}, temp, duty;
+  21          double fre_temp, duty_temp;
+  22          unsigned int Multi = 1800, t = 0;
+  23          unsigned char sum_flag, Dvs = 7, COM = 100;
+  24          bit LCD_Check_Busy(void);
+  25          void Timer_Init_H(void);
+  26          void Timer_Init_L(void);
+  27          void Init(void);
+  28          void LCD_Clear(void);
+  29          void LCD_Write_Com(unsigned char com);
+  30          void LCD_Write_Data(unsigned char Data);
+  31          void LCD_Write_String(unsigned char x, unsigned char y, unsigned char *s);
+  32          void LCD_Write_Char(unsigned char x, unsigned char y, unsigned char Data);
+  33          void LCD_Tag(void);
+  34          void Display(void);
+  35          void Delay(unsigned int xms);
+  36          void main(void)
+  37          {
+  38   1        unsigned char i;
+  39   1        Init();
+  40   1        Timer_Init_H();
+  41   1        Display();
+  42   1        while(1)
+  43   1        {
+  44   2          if(t == 1200)
+  45   2            LCD_Tag();
+  46   2          if(!Range_Mode)
+  47   2          {
+  48   3            if(t == 5)
+  49   3            {
+  50   4              if(dis_flag)
+  51   4              {
+  52   5                if(!first_flag)
+  53   5                  temp = Fre[sum_flag] * 8 * Division[Dvs];
+  54   5                Display();
+C51 COMPILER V9.56.0.0   ________V2_0___LCD_______                                         05/26/2019 20:09:52 PAGE 2   
+
+  55   5              }
+  56   4              if(Dvs)
+  57   4              {
+  58   5                if(Fre[sum_flag] > 3E4)
+  59   5                  {
+  60   6                    if(Fre[sum_flag] > 6E4 && Dvs < 7)
+  61   6                    {
+  62   7                      Dvs++;
+  63   7                      Timer_Init_H();
+  64   7                    }
+  65   6                    else
+  66   6                    {
+  67   7                      dis_flag = 1;
+  68   7                      sum_flag++;
+  69   7                    }
+  70   6                  }
+  71   5                else
+  72   5                {
+  73   6                  if(Dvs > 0)
+  74   6                    Dvs--;  
+  75   6                  Timer_Init_H();
+  76   6                }
+  77   5              }
+  78   4              else
+  79   4              {
+  80   5                if(Fre[sum_flag] >= 12)
+  81   5                {
+  82   6                  if(Fre[sum_flag] > 3E4)
+  83   6                  {
+  84   7                    if(Dvs < 7)
+  85   7                      Dvs++;
+  86   7                    Timer_Init_H();
+  87   7                  }
+  88   6                  else
+  89   6                  {
+  90   7                    dis_flag = 1;
+  91   7                    sum_flag++;
+  92   7                  }
+  93   6                }
+  94   5                else
+  95   5                  Timer_Init_L();
+  96   5              }
+  97   4              if(sum_flag == 8)
+  98   4              {
+  99   5                sum_flag = 0;
+ 100   5                first_flag = 1;
+ 101   5              }
+ 102   4            }
+ 103   3          }
+ 104   2          else if(Range_Mode)
+ 105   2          {
+ 106   3            for(i = 0;i < 8;i++)
+ 107   3            {
+ 108   4              while(!Pulse);
+ 109   4              while(Pulse);
+ 110   4              TR0 = 1;
+ 111   4              while(!Pulse);
+ 112   4              duty_temp = (double)t * 256 + (double)TL0 - 4;
+ 113   4              while(Pulse);
+ 114   4              TR0 = 0;
+ 115   4              fre_temp = (double)t * 256 + (double)TL0 - 1;
+ 116   4              duty_temp /= fre_temp;
+C51 COMPILER V9.56.0.0   ________V2_0___LCD_______                                         05/26/2019 20:09:52 PAGE 3   
+
+ 117   4              duty = (unsigned long int)(1E5 - duty_temp * 1E4 * 0.9936);
+ 118   4              fre_temp = 2304E7 / fre_temp;
+ 119   4              Fre[i] = (unsigned long int)fre_temp;
+ 120   4              if(Fre[i] >= 12E5)
+ 121   4              {
+ 122   5                Timer_Init_H();
+ 123   5                break;
+ 124   5              }
+ 125   4              if(!first_flag)
+ 126   4                temp = Fre[i] * 8;
+ 127   4              TH0 = 0;
+ 128   4              TL0 = 0;
+ 129   4              t = 0;
+ 130   4              Display();
+ 131   4              if(Fre[i] >= 2E5)
+ 132   4                Delay(100);
+ 133   4            }
+ 134   3            first_flag = 1;
+ 135   3          }
+ 136   2        }
+ 137   1      }
+ 138          void Init(void)
+ 139          {
+ 140   1        LCD_Write_Com(0x38);
+ 141   1        Delay(COM);
+ 142   1        LCD_Write_Com(0x08);
+ 143   1        Delay(COM);
+ 144   1        LCD_Write_Com(0x06);
+ 145   1        Delay(COM);
+ 146   1        LCD_Clear();
+ 147   1        LCD_Write_Com(0x0C);
+ 148   1        Delay(COM);
+ 149   1        LCD_Write_String(0, 0, "FREQ:         Hz");
+ 150   1      }
+ 151          void Timer_Init_H(void)
+ 152          {
+ 153   1        unsigned char i;
+ 154   1        ADD_A = (bit)(Dvs & 0x01);
+ 155   1        ADD_B = (bit)(Dvs & 0x02);
+ 156   1        ADD_C = (bit)(Dvs & 0x04);
+ 157   1        TMOD = 0x52;
+ 158   1        TH0 = 0x80;
+ 159   1        TL0 = 0x80;
+ 160   1        TH1 = 0;
+ 161   1        TL1 = 0;
+ 162   1        t = 0;
+ 163   1        EA = 1;
+ 164   1        ET0 = 1;
+ 165   1        TR0 = 1;
+ 166   1        TR1 = 1;
+ 167   1        sum_flag = 0;
+ 168   1        first_flag = 0;
+ 169   1        dis_flag = 0;
+ 170   1        Range_Mode = 0;
+ 171   1        for(i = 0;i < 8;i++)
+ 172   1          Fre[i] = 0;
+ 173   1        LCD_Write_String(0, 1, "           ");
+ 174   1      }
+ 175          void Timer_Init_L(void)
+ 176          {
+ 177   1        unsigned char i;
+ 178   1        TMOD = 0x02;
+C51 COMPILER V9.56.0.0   ________V2_0___LCD_______                                         05/26/2019 20:09:52 PAGE 4   
+
+ 179   1        TR0 = 0;
+ 180   1        TR1 = 0;
+ 181   1        TH0 = 0;
+ 182   1        TL0 = 0;
+ 183   1        ET0 = 1;
+ 184   1        EA = 1;
+ 185   1        t = 0;
+ 186   1        sum_flag = 0;
+ 187   1        first_flag = 0;
+ 188   1        dis_flag = 0;
+ 189   1        Range_Mode = 1;
+ 190   1        for(i = 0;i < 8;i++)
+ 191   1          Fre[i] = 0;
+ 192   1        LCD_Write_String(0, 1, "DUTY:");
+ 193   1        LCD_Write_String(10, 1, "%");
+ 194   1      }
+ 195          bit LCD_Check_Busy(void)
+ 196          {
+ 197   1        RS_CLR;
+ 198   1        RW_SET;
+ 199   1        EN_CLR;
+ 200   1        _nop_();
+ 201   1        EN_SET;
+ 202   1        return (bit)(DataPort & 0x80);
+ 203   1      }
+ 204          void LCD_Clear(void)
+ 205          {
+ 206   1        LCD_Write_Com(0x01);
+ 207   1        Delay(COM);
+ 208   1      }
+ 209          void LCD_Write_Com(unsigned char com)
+ 210          {
+ 211   1        while(LCD_Check_Busy());
+ 212   1        RS_CLR;
+ 213   1        RW_CLR;
+ 214   1        DataPort = com;
+ 215   1        while(!TI);
+ 216   1        TI = 0;
+ 217   1        EN_SET;
+ 218   1        _nop_();
+ 219   1        EN_CLR;
+ 220   1      }
+ 221          void LCD_Write_Data(unsigned char Data)
+ 222          {
+ 223   1        while(LCD_Check_Busy());
+ 224   1        RS_SET;
+ 225   1        RW_CLR;
+ 226   1        DataPort = Data;
+ 227   1        while(!TI);
+ 228   1        TI = 0;
+ 229   1        EN_SET;
+ 230   1        _nop_();
+ 231   1        EN_CLR; 
+ 232   1      }
+ 233          void LCD_Write_String(unsigned char x, unsigned char y, unsigned char *s)
+ 234          {
+ 235   1        if(y == 0)
+ 236   1        {
+ 237   2          LCD_Write_Com(0x80 + x);
+ 238   2        }
+ 239   1        else
+ 240   1        {
+C51 COMPILER V9.56.0.0   ________V2_0___LCD_______                                         05/26/2019 20:09:52 PAGE 5   
+
+ 241   2          LCD_Write_Com(0xC0 + x);
+ 242   2        }
+ 243   1        while(*s)
+ 244   1        {
+ 245   2          LCD_Write_Data(*s);
+ 246   2          s++;
+ 247   2        }
+ 248   1      }
+ 249          void LCD_Write_Char(unsigned char x, unsigned char y, unsigned char Data)
+ 250          {
+ 251   1        if(y == 0)
+ 252   1        {
+ 253   2          LCD_Write_Com(0x80 + x);
+ 254   2        }
+ 255   1        else
+ 256   1        {
+ 257   2          LCD_Write_Com(0xC0 + x);
+ 258   2        }
+ 259   1        LCD_Write_Data(Data);
+ 260   1      }
+ 261          void Display(void)
+ 262          {
+ 263   1        unsigned char i;
+ 264   1        if(first_flag)
+ 265   1        {
+ 266   2          for(i = 0;i < 8;i++)
+ 267   2            temp += Fre[i];
+ 268   2          temp *= Division[Dvs];
+ 269   2        }
+ 270   1        for(i = 12;i >= 5;i--)
+ 271   1        {
+ 272   2          if(Range_Mode)
+ 273   2          {
+ 274   3            if(i == 7)
+ 275   3            {
+ 276   4              LCD_Write_String(i, 0, ".");
+ 277   4              LCD_Write_String(i, 1, ".");
+ 278   4              continue;
+ 279   4            }
+ 280   3            else if(i == 5)
+ 281   3            {
+ 282   4              if(temp)
+ 283   4                LCD_Write_Char(i, 0, Char_Num[temp % 10]);
+ 284   4              else if(!temp)
+ 285   4                LCD_Write_String(i, 0, " ");
+ 286   4              if(duty)
+ 287   4              {
+ 288   5                LCD_Write_Char(i, 1, Char_Num[duty % 10]);
+ 289   5                duty /= 10;
+ 290   5              }
+ 291   4              else if(!duty)
+ 292   4                LCD_Write_String(i, 0, " ");
+ 293   4            }
+ 294   3            else
+ 295   3            {
+ 296   4              LCD_Write_Char(i, 0, Char_Num[temp % 10]);
+ 297   4              if(i < 10)
+ 298   4              {
+ 299   5                LCD_Write_Char(i, 1, Char_Num[duty % 10]);
+ 300   5                duty /= 10;
+ 301   5              }
+ 302   4            }
+C51 COMPILER V9.56.0.0   ________V2_0___LCD_______                                         05/26/2019 20:09:52 PAGE 6   
+
+ 303   3          }
+ 304   2          else
+ 305   2          {
+ 306   3            if(temp)
+ 307   3              LCD_Write_Char(i, 0, Char_Num[temp % 10]);
+ 308   3            else
+ 309   3              LCD_Write_Char(i, 0, Char_Num[10]);
+ 310   3          }
+ 311   2          temp /= 10;
+ 312   2        }
+ 313   1        temp = 0;
+ 314   1        duty = 0;
+ 315   1        dis_flag = 0;
+ 316   1      }
+ 317          void LCD_Tag(void)
+ 318          {
+ 319   1        if(tag_flag)
+ 320   1        {
+ 321   2          LCD_Write_String(12, 1, "CH:");
+ 322   2          tag_flag = 0;
+ 323   2        }
+ 324   1        else
+ 325   1        {
+ 326   2          LCD_Write_String(12, 1, "   ");
+ 327   2          tag_flag = 1;
+ 328   2        }
+ 329   1        LCD_Write_Char(15, 1, Char_Num[Dvs + 1]);
+ 330   1      }
+ 331          void Delay(unsigned int xms)        
+ 332          {
+ 333   1        unsigned int i,j;
+ 334   1        for(i = xms;i > 0;i--)
+ 335   1          for(j = 112;j > 0;j--);
+ 336   1      }
+ 337          void timer0(void) interrupt 1
+ 338          {
+ 339   1        t++;
+ 340   1        if(!Range_Mode)
+ 341   1        {
+ 342   2          if(t == Multi)
+ 343   2          {
+ 344   3            TR0 = 0;
+ 345   3            TR1 = 0;
+ 346   3            t = 0;
+ 347   3            Fre[sum_flag] = TH1 * 256 + TL1;
+ 348   3            TL0++;
+ 349   3            TH1 = 0;
+ 350   3            TL1 = 0;
+ 351   3            TR1 = 1;
+ 352   3            TR0 = 1;
+ 353   3          }
+ 354   2        }
+ 355   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1599    ----
+   CONSTANT SIZE    =     68    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     55       2
+   IDATA SIZE       =   ----    ----
+C51 COMPILER V9.56.0.0   ________V2_0___LCD_______                                         05/26/2019 20:09:52 PAGE 7   
+
+   BIT SIZE         =      4    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,150 @@
+C51 COMPILER V9.56.0.0   C51________                                                       04/19/2019 15:41:05 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE C51________
+OBJECT MODULE PLACED IN .\Objects\C51����С��.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\keil\C51\BIN\C51.EXE C51����С��.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTE
+                    -ND PRINT(.\Listings\C51����С��.lst) TABS(2) OBJECT(.\Objects\C51����С��.obj)
+
+line level    source
+
+   1          #include<regx52.h>
+   2          #define ON 1
+   3          #define OFF 0
+   4          #define YES 0 //红外传回判断
+   5          #define NO 1 //红外传回判断
+   6          //20Hz, 0.05s = 50ms = 50000us = 一个周期, 分成100份, 每次500us
+   7          //P0_0 - P0_7 电机控制端
+   8          //P1_0 & P1_1 避障红外传回
+   9          //P1_2 - P1_5 循迹红外传回//莫得电源接口
+  10          unsigned char Time, Fast_Ratio, Slow_Ratio, COM = 10;
+  11          bit  Fast_Speed, Slow_Speed;
+  12          sbit Left_1_F = P2^0;//
+  13          sbit Left_1_R = P2^1;//***
+  14          sbit Left_2_F = P2^2;//
+  15          sbit Left_2_R = P1^3;
+  16          sbit Right_1_F = P2^4;//
+  17          sbit Right_1_R = P2^5;//***
+  18          sbit Right_2_F = P2^6;//
+  19          sbit Right_2_R = P1^7;
+  20          sbit BZ_Left = P1^0;//左避障红外传感器
+  21          sbit BZ_Right = P1^1;//右避障红外传感器
+  22          sbit XJ_Left = P1^2;//最左边的循迹
+  23          sbit XJ_MidL = P1^3;//中间靠左的循迹
+  24          sbit XJ_MidR = P1^4;//中间靠右的循迹
+  25          sbit XJ_Right = P1^5;//最右边的循迹
+  26          
+  27          void Delay(unsigned int xms);
+  28          void F_Init(void);
+  29          void R_Init(void);
+  30          void main(void)
+  31          {
+  32   1        TMOD = 0x01;//定时器0工作方式1
+  33   1        TH0 = 0xFE;//65536-500
+  34   1        TL0 = 0x0C;
+  35   1        EA = 1;//开总中断
+  36   1        ET0 = 1;//开定时器0中断
+  37   1        TR0 = 1;//启动定时器0
+  38   1        F_Init();
+  39   1        R_Init();
+  40   1        Delay(2000);
+  41   1        while(1)
+  42   1        {
+  43   2          if(BZ_Left == NO && BZ_Right == NO)//无障碍物，全速
+  44   2          {
+  45   3            Left_1_F = ON;
+  46   3            Left_2_F = ON;
+  47   3            Right_1_F = ON;
+  48   3            Right_2_F = ON;
+  49   3            Delay(COM);
+  50   3          }
+  51   2          else if(BZ_Left == YES && BZ_Right == NO)
+  52   2          {
+  53   3            Fast_Ratio = 100;
+  54   3            Slow_Ratio = 30;
+C51 COMPILER V9.56.0.0   C51________                                                       04/19/2019 15:41:05 PAGE 2   
+
+  55   3            Left_1_F = Fast_Speed;
+  56   3            Left_2_F = Fast_Speed;
+  57   3            Right_1_F = Slow_Speed;
+  58   3            Right_2_F = Slow_Speed;
+  59   3            Delay(COM);
+  60   3          }
+  61   2          else if(BZ_Left == NO && BZ_Right == YES)
+  62   2          {
+  63   3            Fast_Ratio = 100;
+  64   3            Slow_Ratio = 30;
+  65   3            Left_1_F = Slow_Speed;
+  66   3            Left_2_F = Slow_Speed;
+  67   3            Right_1_F = Fast_Speed;
+  68   3            Right_2_F = Fast_Speed;
+  69   3            Delay(COM);
+  70   3          }
+  71   2          else if(BZ_Left == YES && BZ_Right == YES)
+  72   2          {
+  73   3            F_Init();
+  74   3            Fast_Ratio = 40;
+  75   3            Slow_Ratio = 80;
+  76   3            Left_1_R = Slow_Speed;
+  77   3            Left_2_R = Slow_Speed;
+  78   3            Right_1_R = Fast_Speed;
+  79   3            Right_2_R = Fast_Speed;
+  80   3            Delay(750);
+  81   3            R_Init();
+  82   3          }
+  83   2        }
+  84   1      }
+  85          void F_Init(void)
+  86          {
+  87   1        Left_1_F = OFF;
+  88   1        Left_2_F = OFF;
+  89   1        Right_1_F = OFF;
+  90   1        Right_2_F = OFF;
+  91   1      }
+  92          void R_Init(void)
+  93          {
+  94   1        Left_1_R = OFF;
+  95   1        Left_2_R = OFF;
+  96   1        Right_1_R = OFF;
+  97   1        Right_2_R = OFF;
+  98   1      }
+  99          void Time0(void) interrupt 1
+ 100          {
+ 101   1        TR0 = 0;//赋初值时，关闭定时器
+ 102   1        TH0 = 0xFE;
+ 103   1        TL0 = 0x0C;
+ 104   1        TR0 = 1;//打开定时器
+ 105   1        Time++;
+ 106   1        if(Time >= 100)
+ 107   1          Time = 0;   
+ 108   1        if(Time <= Fast_Ratio)//占空比由Fast_Ratio与Slow_Ratio决定
+ 109   1          Fast_Speed = 1;
+ 110   1        else if(Time > Fast_Ratio)
+ 111   1          Fast_Speed = 0;
+ 112   1        if(Time <= Slow_Ratio)
+ 113   1          Slow_Speed = 1;
+ 114   1        else if(Time > Slow_Ratio)
+ 115   1          Slow_Speed = 0;
+ 116   1      }
+C51 COMPILER V9.56.0.0   C51________                                                       04/19/2019 15:41:05 PAGE 3   
+
+ 117          void Delay(unsigned int xms)        
+ 118          {
+ 119   1        unsigned int i,j;
+ 120   1        for(i=xms;i>0;i--)
+ 121   1          for(j=112;j>0;j--);
+ 122   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    281    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      2    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

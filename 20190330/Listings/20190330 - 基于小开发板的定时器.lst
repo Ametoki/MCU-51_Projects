@@ -1,0 +1,272 @@
+C51 COMPILER V9.56.0.0   20190330_______________________                                   05/13/2019 15:51:28 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE 20190330_______________________
+OBJECT MODULE PLACED IN .\Objects\20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\keil\C51\BIN\C51.EXE 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c OPTIMIZE(8,SPEED) BRO
+                    -WSE DEBUG OBJECTEXTEND PRINT(.\Listings\20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.lst) TABS(2) OBJECT(.\Objects\20190330 - »ùÓÚÐ¡¿
+                    -ª·¢°åµÄ¶¨Ê±Æ÷.obj)
+
+line level    source
+
+   1          #include<regx52.h>
+   2          #include<intrins.h>
+   3          sbit fm = P2^3;
+   4          sbit CLR = P2^4;
+   5          void delay(unsigned int i);
+   6          void Timer0_Init(void);
+   7          void Beep(void);
+   8          void Alarm(void);
+   9          //void bibibi(int i);
+  10          //¹²Òõ¼«ÊýÂë¹Ü×ÖÄ£0 - 9 //Ôö¼Ó¡°-¡±
+  11          unsigned char code Disp_Tab[] = {0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,0x40,0xbf};
+  12          //¹²Òõ¼«ÊýÂë¹ÜÎ»Ñ¡¿ØÖÆ 0 - 7
+  13          unsigned char code dispbit[4]={0x1f,0x2f,0x4f,0x8f};
+  14          void main(void)
+  15          {
+  16   1        SCON = 0x00;
+  17   1        CLR = 0;
+  18   1        unsigned char r = 0, s = 0;
+*** ERROR C141 IN LINE 18 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: syntax error near 'unsigned'
+*** ERROR C202 IN LINE 18 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'r': undefined identifier
+  19   1        bit hour;
+*** ERROR C141 IN LINE 19 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: syntax error near 'bit'
+*** ERROR C202 IN LINE 19 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'hour': undefined identifier
+  20   1        unsigned int i, o, p , q;
+*** ERROR C141 IN LINE 20 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: syntax error near 'unsigned'
+*** ERROR C202 IN LINE 20 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'i': undefined identifier
+  21   1        unsigned int LedOut[8];
+*** ERROR C141 IN LINE 21 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: syntax error near 'unsigned'
+*** ERROR C202 IN LINE 21 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'LedOut': undefined identifier
+  22   1        Timer0_Init();
+  23   1        while(1)
+  24   1        {
+  25   2          for(o = 0;o <= 24;o++)
+*** ERROR C202 IN LINE 25 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'o': undefined identifier
+  26   2          {
+  27   3            for(p = 0;p <= 59;p++)
+*** ERROR C202 IN LINE 27 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'p': undefined identifier
+  28   3            {
+  29   4              for(q = 0;q <= 59;q++)
+*** ERROR C202 IN LINE 29 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'q': undefined identifier
+  30   4              {
+  31   5                if(o == 14 && p == 1 && q == 0)
+*** ERROR C202 IN LINE 31 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'o': undefined identifier
+  32   5                  Alarm();
+  33   5                if(hour == 0)
+*** ERROR C202 IN LINE 33 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'hour': undefined identifier
+  34   5                {
+  35   6                  LedOut[0] = Disp_Tab[p / 10];
+*** ERROR C202 IN LINE 35 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'LedOut': undefined identifier
+  36   6                  LedOut[1] = Disp_Tab[p % 10]|0x80;
+*** ERROR C202 IN LINE 36 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'LedOut': undefined identifier
+  37   6                  LedOut[2] = Disp_Tab[q / 10];
+*** ERROR C202 IN LINE 37 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'LedOut': undefined identifier
+C51 COMPILER V9.56.0.0   20190330_______________________                                   05/13/2019 15:51:28 PAGE 2   
+
+  38   6                  LedOut[3] = Disp_Tab[q % 10];
+*** ERROR C202 IN LINE 38 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'LedOut': undefined identifier
+  39   6                }
+  40   5                else if(hour == 1 && s <= 9)
+*** ERROR C202 IN LINE 40 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'hour': undefined identifier
+  41   5                {
+  42   6                  LedOut[0] = Disp_Tab[p / 10];
+*** ERROR C202 IN LINE 42 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'LedOut': undefined identifier
+  43   6                  LedOut[1] = Disp_Tab[p % 10]|0x80;
+*** ERROR C202 IN LINE 43 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'LedOut': undefined identifier
+  44   6                  LedOut[2] = Disp_Tab[q / 10];
+*** ERROR C202 IN LINE 44 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'LedOut': undefined identifier
+  45   6                  LedOut[3] = Disp_Tab[q % 10];
+*** ERROR C202 IN LINE 45 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'LedOut': undefined identifier
+  46   6                }
+  47   5                else if(hour == 1 && s > 9 && s <= 14)
+*** ERROR C202 IN LINE 47 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'hour': undefined identifier
+  48   5                {
+  49   6                  LedOut[0] = Disp_Tab[o / 10];
+*** ERROR C202 IN LINE 49 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'LedOut': undefined identifier
+  50   6                  LedOut[1] = Disp_Tab[o % 10];
+*** ERROR C202 IN LINE 50 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'LedOut': undefined identifier
+  51   6                  LedOut[2] = Disp_Tab[p / 10];
+*** ERROR C202 IN LINE 51 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'LedOut': undefined identifier
+  52   6                  LedOut[3] = Disp_Tab[p % 10];
+*** ERROR C202 IN LINE 52 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'LedOut': undefined identifier
+  53   6                }
+  54   5                else if(hour == 1 && s > 14 && s <= 18)
+*** ERROR C202 IN LINE 54 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'hour': undefined identifier
+  55   5                {
+  56   6                  LedOut[0] = Disp_Tab[2];
+*** ERROR C202 IN LINE 56 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'LedOut': undefined identifier
+  57   6                  LedOut[1] = Disp_Tab[0];
+*** ERROR C202 IN LINE 57 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'LedOut': undefined identifier
+  58   6                  LedOut[2] = Disp_Tab[1];
+*** ERROR C202 IN LINE 58 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'LedOut': undefined identifier
+  59   6                  LedOut[3] = Disp_Tab[9];
+*** ERROR C202 IN LINE 59 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'LedOut': undefined identifier
+  60   6                }
+  61   5                while(1)
+  62   5                {
+  63   6                  for(i = 0;i <= 3;i++)
+*** ERROR C202 IN LINE 63 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'i': undefined identifier
+  64   6                  {
+  65   7                    SBUF = LedOut[i];
+*** ERROR C202 IN LINE 65 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'i': undefined identifier
+  66   7                    P2 = i;
+*** ERROR C202 IN LINE 66 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'i': undefined identifier
+  67   7                    delay(3);
+  68   7                    CLR = 1;
+  69   7                  }
+  70   6                  switch(P3)
+  71   6                    {
+  72   7                        case 0xef:
+  73   7                        delay(60); 
+  74   7                        if(P3 == 0xef)
+  75   7                        {
+  76   8                          if (o <= 23){o++;Beep();break;}
+*** ERROR C202 IN LINE 76 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'o': undefined identifier
+*** ERROR C202 IN LINE 76 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'o': undefined identifier
+  77   8                          else{o = 0;Beep();break;}
+*** ERROR C202 IN LINE 77 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'o': undefined identifier
+C51 COMPILER V9.56.0.0   20190330_______________________                                   05/13/2019 15:51:28 PAGE 3   
+
+  78   8                        }
+  79   7                        case 0xdf:
+  80   7                        delay(60); 
+  81   7                        if(P3 == 0xdf)
+  82   7                        {
+  83   8                          if (p <= 59){p++;Beep();break;}
+*** ERROR C202 IN LINE 83 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'p': undefined identifier
+*** ERROR C202 IN LINE 83 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'p': undefined identifier
+  84   8                          else{p = 0;Beep();break;}
+*** ERROR C202 IN LINE 84 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'p': undefined identifier
+  85   8                        }
+  86   7                        case 0xbf:
+  87   7                        delay(60); 
+  88   7                        if(P3 == 0xbf)
+  89   7                        {
+  90   8                          if (q <= 59){q++;Beep();break;}
+*** ERROR C202 IN LINE 90 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'q': undefined identifier
+*** ERROR C202 IN LINE 90 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'q': undefined identifier
+  91   8                          else{q = 0;Beep();break;}
+*** ERROR C202 IN LINE 91 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'q': undefined identifier
+  92   8                        }
+  93   7                        case 0x7f:
+  94   7                        delay(60); 
+  95   7                        if(P3 == 0x7f)
+  96   7                        {
+  97   8                          if(hour == 0){hour = 1;Beep();break;}
+*** ERROR C202 IN LINE 97 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'hour': undefined identifier
+*** ERROR C202 IN LINE 97 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'hour': undefined identifier
+  98   8                          else{hour = 0;Beep();break;}
+*** ERROR C202 IN LINE 98 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'hour': undefined identifier
+  99   8                        }
+ 100   7                  //case 0xfe : if(q <= 58){q++; break;}else{q = 0; break;}
+ 101   7                  //case 0xfd : if(p <= 58){p++; break;}else{p = 0; break;}
+ 102   7                  //case 0xfb : if(o <= 23){o++; break;}else{o = 0; break;}
+ 103   7                  //case 0xef : if(q >= 2){q--; break;}else{q = 59; break;}
+ 104   7                  //case 0xdf : if(p >= 1){p--; break;}else{p = 59; break;}
+ 105   7                  //case 0xbf : if(o >= 1){o--; break;}else{o = 23; break;}
+ 106   7                  //case 0xff : break;
+ 107   7                    }
+ 108   6                  if(TF0 == 1)
+ 109   6                  {
+ 110   7                    TF0 = 0;
+ 111   7                    r++;
+*** ERROR C202 IN LINE 111 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'r': undefined identifier
+ 112   7                  }
+ 113   6                  if(r >= 7 && ((hour == 0) || (hour == 1 && s <=9)))
+*** ERROR C202 IN LINE 113 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'r': undefined identifier
+ 114   6                  {
+ 115   7                    LedOut[1] = Disp_Tab[p % 10];
+*** ERROR C202 IN LINE 115 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'LedOut': undefined identifier
+ 116   7                  }
+ 117   6                  if(r == 14)
+*** ERROR C202 IN LINE 117 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'r': undefined identifier
+ 118   6                  {
+ 119   7                    r = 0;
+*** ERROR C202 IN LINE 119 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 'r': undefined identifier
+ 120   7                    s++;
+*** ERROR C202 IN LINE 120 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 's': undefined identifier
+ 121   7                    if(s == 18) s = 0;
+*** ERROR C202 IN LINE 121 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 's': undefined identifier
+*** ERROR C202 IN LINE 121 OF 20190330 - »ùÓÚÐ¡¿ª·¢°åµÄ¶¨Ê±Æ÷.c: 's': undefined identifier
+ 122   7                    break;
+C51 COMPILER V9.56.0.0   20190330_______________________                                   05/13/2019 15:51:28 PAGE 4   
+
+ 123   7                  }
+ 124   6                }
+ 125   5                /********
+ 126   5                if(TF0 == 1)
+ 127   5                {
+ 128   5                  TF0=0;
+ 129   5                  r++;
+ 130   5                  if(r==14)
+ 131   5                  {
+ 132   5                    r=0;
+ 133   5                    for(i = 0;i <= 3;i++)
+ 134   5                    {
+ 135   5                      P0 = LedOut[i];
+ 136   5                      P2 = dispbit[i];
+ 137   5                    }
+ 138   5                  }
+ 139   5                }
+ 140   5                ********/
+ 141   5              }
+ 142   4            }
+ 143   3          }
+ 144   2        }
+ 145   1      }
+ 146          /*
+ 147          void bibibi(int i)
+ 148          {
+ 149             Beep= 1;
+ 150             delay(i);
+ 151             Beep= 0;
+ 152             delay(i);
+ 153          }
+ 154          */
+ 155          void delay(unsigned int xms)        
+ 156          {
+ 157   1        unsigned int i,j;
+ 158   1        for(i=xms;i>0;i--)
+ 159   1          for(j=112;j>0;j--);
+ 160   1      }
+ 161          void Timer0_Init(void)
+ 162          {
+ 163   1         TMOD = 0x01;
+ 164   1         TH0 = 0;
+ 165   1         TL0 = 0;
+ 166   1         TR0 = 1;
+ 167   1      }
+ 168          void Beep(void)
+ 169          {
+ 170   1        fm = 0;
+ 171   1        delay(50);
+ 172   1        fm = 1;
+ 173   1      }
+ 174          void Alarm(void)
+ 175          {
+ 176   1        unsigned int i, j;
+ 177   1        P1 = 0xfe;  
+ 178   1        for(j = 0;j < 48;j++)
+ 179   1        {
+ 180   2            for(i = 0;i < 6; i++)
+ 181   2          {
+ 182   3            if(i < 4)
+ 183   3            {
+ 184   4              fm = 0;
+C51 COMPILER V9.56.0.0   20190330_______________________                                   05/13/2019 15:51:28 PAGE 5   
+
+ 185   4              P1 =_crol_(P1,1);
+ 186   4              delay(80);
+ 187   4              fm = 1;
+ 188   4              delay(80);
+ 189   4            }
+ 190   3            else
+ 191   3            {
+ 192   4              delay(80);
+ 193   4            }
+ 194   3          }
+ 195   2        }
+ 196   1      }
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  55 ERROR(S)

@@ -1,0 +1,55 @@
+C51 COMPILER V9.56.0.0   20190326                                                          03/27/2019 23:16:25 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE 20190326
+OBJECT MODULE PLACED IN .\Objects\20190326.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\keil\C51\BIN\C51.EXE 20190326.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND 
+                    -PRINT(.\Listings\20190326.lst) TABS(2) OBJECT(.\Objects\20190326.obj)
+
+line level    source
+
+   1          #include<regx51.h>
+   2            /*
+   3            unsigned char data i,*dcpt;
+   4            unsigned char xdata *xcpt;
+   5            dcpt = 0x30;
+   6            xcpt = 0x1000;
+   7            for(i = 0;i < 16;i++)
+   8            {
+   9              *(dcpt + i) = *(xcpt + i);
+  10            }
+  11            */
+  12          void delay(unsigned int time)
+  13          { 
+  14   1        unsigned int j=0;
+  15   1          for(;time>0;time--)
+  16   1            for(j=0;j<125;j++);
+  17   1      }
+  18          
+  19          void main(void)
+  20          {
+  21   1        char led_mod[]={0x003f,0x0006,0x005b,0x004f,0x0066,0x006d,0x007d,0x0007,0x007f,0x006f};
+  22   1        int i;
+  23   1        while(1)
+  24   1        {
+  25   2          for(i = 0;i <= 9;i++)
+  26   2          {
+  27   3            P0 = led_mod[i];
+  28   3            delay(500);
+  29   3          }
+  30   2        }
+  31   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     80    ----
+   CONSTANT SIZE    =     10    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      10
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\20190406 - 电动马达调速.obj" 
+TO ".\Objects\20190406 - 电动马达调速" 
+PRINT(".\Listings\20190406 - 电动马达调速.m51")

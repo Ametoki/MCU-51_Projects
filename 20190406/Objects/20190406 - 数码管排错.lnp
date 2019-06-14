@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\20190406 - 数码管排错.obj" 
+TO ".\Objects\20190406 - 数码管排错" 
+PRINT(".\Listings\20190406 - 数码管排错.m51") RAMSIZE(256) 

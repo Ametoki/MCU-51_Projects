@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\20190414 - 中断计数器.obj" 
+TO ".\Objects\20190414 - 中断计数器" 
+PRINT(".\Listings\20190414 - 中断计数器.m51") RAMSIZE(256) 

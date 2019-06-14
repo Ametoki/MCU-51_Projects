@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\频率测量V2.0 -164+分频器.obj" 
+TO ".\Objects\20190516 - 频率测量V2.0 - 74HC164" 
+PRINT(".\Listings\20190516 - 频率测量V2.0 - 74HC164.m51") RAMSIZE(256) 

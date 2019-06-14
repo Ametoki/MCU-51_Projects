@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\20190405 - 数码管PWM调光.obj" 
+TO ".\Objects\20190405 - 数码管PWM调光" 
+PRINT(".\Listings\20190405 - 数码管PWM调光.m51") RAMSIZE(256) 

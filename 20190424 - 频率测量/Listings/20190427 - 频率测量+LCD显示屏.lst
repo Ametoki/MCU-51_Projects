@@ -1,0 +1,199 @@
+C51 COMPILER V9.56.0.0   20190427____________LCD______                                     05/21/2019 23:20:46 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE 20190427____________LCD______
+OBJECT MODULE PLACED IN .\Objects\20190427 - Ƶ�ʲ���+LCD��ʾ��.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\keil\C51\BIN\C51.EXE 20190427 - Ƶ�ʲ���+LCD��ʾ��.c OPTIMIZE(8,SPEED) BROWS
+                    -E DEBUG OBJECTEXTEND PRINT(.\Listings\20190427 - Ƶ�ʲ���+LCD��ʾ��.lst) TABS(2) OBJECT(.\Objects\20190427 - Ƶ�ʲ���+LC
+                    -D��ʾ��.obj)
+
+line level    source
+
+   1          //频率测量 + 1602A显示屏
+   2          #include<regx52.h>
+   3          #include<intrins.h>
+   4          #include<stdio.h>
+   5          #define RS_CLR RS=0
+   6          #define RS_SET RS=1
+   7          #define RW_CLR RW=0
+   8          #define RW_SET RW=1
+   9          #define EN_CLR EN=0
+  10          #define EN_SET EN=1
+  11          #define DataPort P2
+  12          sbit RS = P1^5;
+  13          sbit RW = P1^6;
+  14          sbit EN = P1^7;
+  15          //sbit Pulse = P3^5;
+  16          unsigned long int Fre;
+  17          unsigned int t = 0;
+  18          unsigned char Offset = 0x3D;//当计数器即将溢出时更新计数器的时间补偿
+  19          unsigned char COM = 5;//显示屏指令延迟时间/ms
+  20          unsigned char Char_Num[]="0123456789 Hz.";
+  21          bit LCD_Check_Busy(void);
+  22          /****
+  23          void Beep(void);
+  24          void Alarm(void);
+  25          ****/
+  26          void Delay(unsigned int xms);
+  27          void LCD_Clear(void);
+  28          void Init(void);
+  29          void LCD_Write_Com(unsigned char com);
+  30          void LCD_Write_Data(unsigned char Data);
+  31          void LCD_Write_String(unsigned char x, unsigned char y, unsigned char *s);
+  32          void LCD_Write_Char(unsigned char x, unsigned char y, unsigned char Data);
+  33          void Display(unsigned long int temp);
+  34          void main(void)
+  35          {
+  36   1        while(LCD_Check_Busy());
+  37   1        Init();
+  38   1        LCD_Write_String(0, 0, "Hello");
+  39   1        while(1)
+  40   1        {
+  41   2          if(TH1 >= 0xE0)//计数器即将溢出时更新计数器
+  42   2          {
+  43   3            Fre += TH1 * 256 + TL1;
+  44   3            if(TL0 >= Offset)
+  45   3            TL0 -= Offset;
+  46   3            TH1 = 0x00;
+  47   3            TL1 = 0x00;
+  48   3          }
+  49   2          if(t == 0)
+  50   2            Display(Fre);//每秒只刷新一次频率显示
+  51   2        }
+  52   1      }
+  53          void Init(void)
+C51 COMPILER V9.56.0.0   20190427____________LCD______                                     05/21/2019 23:20:46 PAGE 2   
+
+  54          {
+  55   1        LCD_Write_Com(0x38);
+  56   1        Delay(COM);
+  57   1        LCD_Write_Com(0x08);
+  58   1        Delay(COM);
+  59   1        LCD_Write_Com(0x06);
+  60   1        Delay(COM);
+  61   1        LCD_Clear();
+  62   1        LCD_Write_Com(0x0C);
+  63   1        Delay(COM);
+  64   1        TMOD = 0x52;
+  65   1        SCON = 0x00;
+  66   1        TH0 = 0x80;
+  67   1        TL0 = 0x80;
+  68   1        TH1 = 0;
+  69   1        TL1 = 0;
+  70   1        EA = 1;
+  71   1        ET0 = 1;
+  72   1        TR0 = 1;
+  73   1        TR1 = 1;
+  74   1      }
+  75          void timer0(void) interrupt 1
+  76          {
+  77   1        t++;
+  78   1        if(t == 7201)
+  79   1        {
+  80   2          t = 0;
+  81   2          Fre += TH1 * 256 + TL1;
+  82   2          TH1 = 0;
+  83   2          TL1 = 0;
+  84   2        }
+  85   1      }
+  86          bit LCD_Check_Busy(void)
+  87          {
+  88   1        RS_CLR;
+  89   1        RW_SET;
+  90   1        EN_CLR;
+  91   1        _nop_();
+  92   1        EN_SET;
+  93   1        return (bit)(DataPort & 0x80);
+  94   1      }
+  95          void LCD_Clear(void)
+  96          {
+  97   1        LCD_Write_Com(0x01);
+  98   1        Delay(COM);
+  99   1      }
+ 100          void LCD_Write_Com(unsigned char com)
+ 101          {
+ 102   1        while(LCD_Check_Busy());
+ 103   1        RS_CLR;
+ 104   1        RW_CLR;
+ 105   1        DataPort = com;
+ 106   1        EN_SET;
+ 107   1        _nop_();
+ 108   1        EN_CLR;
+ 109   1      }
+ 110          void LCD_Write_Data(unsigned char Data)
+ 111          {
+ 112   1        while(LCD_Check_Busy());
+ 113   1        RS_SET;
+ 114   1        RW_CLR;
+ 115   1        DataPort = Data;
+C51 COMPILER V9.56.0.0   20190427____________LCD______                                     05/21/2019 23:20:46 PAGE 3   
+
+ 116   1        EN_SET;
+ 117   1        _nop_();
+ 118   1        EN_CLR; 
+ 119   1      }
+ 120          void LCD_Write_String(unsigned char x, unsigned char y, unsigned char *s)
+ 121          {
+ 122   1        if(y == 0)
+ 123   1        {
+ 124   2          LCD_Write_Com(0x80 + x);
+ 125   2        }
+ 126   1        else
+ 127   1        {
+ 128   2          LCD_Write_Com(0xC0 + x);
+ 129   2        }
+ 130   1        while(*s)
+ 131   1        {
+ 132   2          LCD_Write_Data(*s);
+ 133   2          s++;
+ 134   2        }
+ 135   1      }
+ 136          void LCD_Write_Char(unsigned char x, unsigned char y, unsigned char Data)
+ 137          {
+ 138   1        if(y == 0)
+ 139   1        {
+ 140   2          LCD_Write_Com(0x80 + x);
+ 141   2        }
+ 142   1        else
+ 143   1        {
+ 144   2          LCD_Write_Com(0xC0 + x);
+ 145   2        }
+ 146   1        LCD_Write_Data(Data);
+ 147   1      }
+ 148          void Display(unsigned long int temp)
+ 149          {
+ 150   1        unsigned char i;
+ 151   1        temp = Fre;
+ 152   1        for(i = 9;i >= 3;i--)
+ 153   1        {
+ 154   2          LCD_Write_Char(i, 0, Char_Num[temp % 10]);
+ 155   2          temp /= 10;
+ 156   2        }
+ 157   1        LCD_Write_Char(10, 0, Char_Num[10]);
+ 158   1        LCD_Write_Char(11, 0, Char_Num[11]);
+ 159   1        LCD_Write_Char(12, 0, Char_Num[12]);
+ 160   1        Delay(200);
+ 161   1        Fre = 0;
+ 162   1      }
+ 163          void Delay(unsigned int xms)        
+ 164          {
+ 165   1        unsigned int i,j;
+ 166   1        for(i=xms;i>0;i--)
+ 167   1          for(j=112;j>0;j--);
+ 168   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    532    ----
+   CONSTANT SIZE    =      6    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     23       5
+   IDATA SIZE       =   ----    ----
+C51 COMPILER V9.56.0.0   20190427____________LCD______                                     05/21/2019 23:20:46 PAGE 4   
+
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

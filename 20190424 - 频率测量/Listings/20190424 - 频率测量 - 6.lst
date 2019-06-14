@@ -1,0 +1,82 @@
+C51 COMPILER V9.56.0.0   20190424______________6                                           05/09/2019 09:22:10 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE 20190424______________6
+OBJECT MODULE PLACED IN .\Objects\20190424 - Ƶ�ʲ��� - 6.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\keil\C51\BIN\C51.EXE 20190424 - Ƶ�ʲ��� - 6.c OPTIMIZE(8,SPEED) BROWSE DEBU
+                    -G OBJECTEXTEND PRINT(.\Listings\20190424 - Ƶ�ʲ��� - 6.lst) TABS(2) OBJECT(.\Objects\20190424 - Ƶ�ʲ��� - 6.obj)
+
+line level    source
+
+   1          //比较精准的频率测量程序
+   2          #include<regx52.h>
+   3          sbit Pulse = P3^5;
+   4          unsigned char code Disp_Tab_2[] = {0x77,0x14,0xb3,0xb6,0xd4,0xe6,0xe7,0x34,0xf7,0xf6,0x00};
+   5          unsigned long int Fre;
+   6          unsigned int t = 0;
+   7          unsigned char Offset = 0x3D;//当频率大于65536时更新计数器的时间补偿
+   8          void Display(unsigned long int temp);
+   9          void main(void)
+  10          {
+  11   1        TMOD = 0x52;
+  12   1        SCON = 0x00;
+  13   1        TH0 = 0x80;
+  14   1        TL0 = 0x80;
+  15   1        TH1 = 0;
+  16   1        TL1 = 0;
+  17   1        EA = 1;
+  18   1        ET0 = 1;
+  19   1        TR0 = 1;
+  20   1        TR1 = 1;
+  21   1        while(1)
+  22   1        {
+  23   2          if(TH1 >= 0xE0)//计数器即将溢出时更新计数器
+  24   2          {
+  25   3            Fre += TH1 * 256 + TL1;
+  26   3            if(TL0 >= Offset)
+  27   3            TL0 -= Offset;
+  28   3            TH1 = 0x00;
+  29   3            TL1 = 0x00;
+  30   3          }
+  31   2          if(t == 0)
+  32   2            Display(Fre);//每秒只刷新一次频率显示
+  33   2        }
+  34   1      }
+  35          void timer0(void) interrupt 1
+  36          {
+  37   1        t++;
+  38   1        if(t == 7200)
+  39   1        {
+  40   2          t = 0;
+  41   2          Fre += TH1 * 256 + TL1;
+  42   2          TH1 = 0;
+  43   2          TL1 = 0;
+  44   2        }
+  45   1      }
+  46          void Display(unsigned long int temp)
+  47          {
+  48   1        unsigned char i;
+  49   1        temp = Fre;
+  50   1        for(i = 0;i < 8;i++)
+  51   1        {
+  52   2          SBUF = Disp_Tab_2[temp % 10];
+  53   2          temp /= 10;
+  54   2        }
+C51 COMPILER V9.56.0.0   20190424______________6                                           05/09/2019 09:22:10 PAGE 2   
+
+  55   1        Fre = 0;
+  56   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    292    ----
+   CONSTANT SIZE    =     11    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      7       5
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

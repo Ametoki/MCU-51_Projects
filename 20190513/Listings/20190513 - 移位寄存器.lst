@@ -1,0 +1,59 @@
+C51 COMPILER V9.56.0.0   20190513_____________                                             05/13/2019 15:33:48 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE 20190513_____________
+OBJECT MODULE PLACED IN .\Objects\20190513 - ÒÆÎ»¼Ä´æÆ÷.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\keil\C51\BIN\C51.EXE 20190513 - ÒÆÎ»¼Ä´æÆ÷.c OPTIMIZE(8,SPEED) BROWSE DEBUG 
+                    -OBJECTEXTEND PRINT(.\Listings\20190513 - ÒÆÎ»¼Ä´æÆ÷.lst) TABS(2) OBJECT(.\Objects\20190513 - ÒÆÎ»¼Ä´æÆ÷.obj)
+
+line level    source
+
+   1          #include<regx52.h>
+   2          #include<intrins.h>
+   3          sbit CLK = P2^0;
+   4          sbit D = P2^1;
+   5          void delay(unsigned int xms);
+   6          void main(void)
+   7          {
+   8   1        unsigned char i;
+   9   1        D = 1;
+  10   1        for(i = 0;i < 8;i++)
+  11   1        {
+  12   2          CLK = 0;
+  13   2          CLK = 1;
+  14   2        }
+  15   1        while(1)
+  16   1        {
+  17   2          CLK = 0;
+  18   2          D = 0;
+  19   2          CLK = 1;
+  20   2          delay(300);
+  21   2          D = 1;
+  22   2          for(i = 0;i < 7;i++)
+  23   2          {
+  24   3            CLK = 0;
+  25   3            CLK = 1;
+  26   3            delay(300);
+  27   3          }
+  28   2        }
+  29   1      }
+  30          void delay(unsigned int xms)
+  31          {
+  32   1        unsigned int i,j;
+  33   1        for(i=xms;i>0;i--)
+  34   1          for(j=112;j>0;j--);
+  35   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     80    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

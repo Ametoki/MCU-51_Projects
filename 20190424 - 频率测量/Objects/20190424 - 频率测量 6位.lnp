@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\20190424 - 频率测量 - 6.obj" 
+TO ".\Objects\20190424 - 频率测量 6位" 
+PRINT(".\Listings\20190424 - 频率测量 6位.m51") RAMSIZE(256) 

@@ -1,0 +1,241 @@
+C51 COMPILER V9.56.0.0   20190420_____________                                             04/22/2019 19:47:33 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE 20190420_____________
+OBJECT MODULE PLACED IN .\Objects\20190420 - ³¬Éù²¨²â¾à.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\keil\C51\BIN\C51.EXE 20190420 - ³¬Éù²¨²â¾à.c OPTIMIZE(8,SPEED) BROWSE DEBUG 
+                    -OBJECTEXTEND PRINT(.\Listings\20190420 - ³¬Éù²¨²â¾à.lst) TABS(2) OBJECT(.\Objects\20190420 - ³¬Éù²¨²â¾à.obj)
+
+line level    source
+
+   1          #include<regx52.h>
+   2          #include<intrins.h>
+   3          #include<stdio.h>
+   4          #define RS_CLR RS=0
+   5          #define RS_SET RS=1
+   6          #define RW_CLR RW=0
+   7          #define RW_SET RW=1
+   8          #define EN_CLR EN=0
+   9          #define EN_SET EN=1
+  10          #define DataPort P0
+  11          sbit RS = P1^0;
+  12          sbit RW = P1^1;
+  13          sbit EN = P2^5;
+  14          sbit fm = P2^3;
+  15          sbit US_VCC = P1^4;
+  16          sbit Trig = P1^5;
+  17          sbit Echo = P1^6;
+  18          sbit US_GND = P1^7;
+  19          
+  20          unsigned char COM = 100;
+  21          unsigned int Distance;
+  22          unsigned char Char_Num[]="0123456789cm.";
+  23          bit LCD_Check_Busy(void);
+  24          /****
+  25          void Beep(void);
+  26          void Alarm(void);
+  27          ****/
+  28          void Delay(unsigned int xms);
+  29          void LCD_Clear(void);
+  30          void Init(void);
+  31          void LCD_Write_Com(unsigned char com);
+  32          void LCD_Write_Data(unsigned char Data);
+  33          void LCD_Write_String(unsigned char x, unsigned char y, unsigned char *s);
+  34          void LCD_Write_Char(unsigned char x, unsigned char y, unsigned char Data);
+  35          void Check_Distance(void);
+  36          void main(void)
+  37          {
+  38   1        unsigned int a, b;
+  39   1        while(LCD_Check_Busy());
+  40   1        Init();
+  41   1        while(1)
+  42   1        {
+  43   2          Check_Distance();
+  44   2          LCD_Write_Char(4, 0, Char_Num[Distance % 10000 / 1000]);
+  45   2          LCD_Write_Char(5, 0, Char_Num[Distance % 1000 / 100]);
+  46   2          LCD_Write_Char(6, 0, Char_Num[Distance % 100 / 10]);
+  47   2          LCD_Write_Char(7, 0, Char_Num[12]);
+  48   2          LCD_Write_Char(8, 0, Char_Num[Distance % 10]);
+  49   2          LCD_Write_Char(10, 0, Char_Num[10]);
+  50   2          LCD_Write_Char(11, 0, Char_Num[11]);
+  51   2          Delay(200);
+  52   2          //LCD_Write_Char(7, 0, 0x30 + (Min / 10));
+  53   2          //LCD_Write_Char(8, 0, 0x30 + (Min % 10));
+  54   2          //LCD_Write_Char(9, 0, ':');
+C51 COMPILER V9.56.0.0   20190420_____________                                             04/22/2019 19:47:33 PAGE 2   
+
+  55   2          //LCD_Write_Char(10, 0, 0x30 + (Sec / 10));
+  56   2          //LCD_Write_Char(11, 0, 0x30 + (Sec % 10));
+  57   2        }
+  58   1      }
+*** WARNING C280 IN LINE 38 OF 20190420 - ³¬Éù²¨²â¾à.c: 'a': unreferenced local variable
+*** WARNING C280 IN LINE 38 OF 20190420 - ³¬Éù²¨²â¾à.c: 'b': unreferenced local variable
+  59          /****
+  60          void Beep(void)
+  61          {
+  62            fm = 1;
+  63            Delay(50);
+  64            fm = 1;
+  65          }
+  66          void Alarm(void)
+  67          {
+  68            unsigned int i, j;
+  69            for(j = 0;j < 48;j++)
+  70            {
+  71                for(i = 0;i < 6; i++)
+  72              {
+  73                if(i < 4)
+  74                {
+  75                  fm = 0;
+  76                  Delay(80);
+  77                  fm = 1;
+  78                  Delay(80);
+  79                }
+  80                else
+  81                {
+  82                  Delay(80);
+  83                }
+  84              }
+  85            }
+  86          }
+  87          ****/
+  88          bit LCD_Check_Busy(void)
+  89          {
+  90   1        RS_CLR;
+  91   1        RW_SET;
+  92   1        EN_CLR;
+  93   1        _nop_();
+  94   1        EN_SET;
+  95   1        return (bit)(DataPort & 0x80);
+  96   1      }
+  97          void Delay(unsigned int xms)        
+  98          {
+  99   1        unsigned int i,j;
+ 100   1        for(i=xms;i>0;i--)
+ 101   1          for(j=112;j>0;j--);
+ 102   1      }
+ 103          void LCD_Clear(void)
+ 104          {
+ 105   1        LCD_Write_Com(0x01);
+ 106   1        Delay(COM);
+ 107   1      }
+ 108          void Init(void)
+ 109          {
+ 110   1        LCD_Write_Com(0x38);
+ 111   1        Delay(COM);
+ 112   1        LCD_Write_Com(0x08);
+ 113   1        Delay(COM);
+ 114   1        LCD_Write_Com(0x06);
+C51 COMPILER V9.56.0.0   20190420_____________                                             04/22/2019 19:47:33 PAGE 3   
+
+ 115   1        Delay(COM);
+ 116   1        LCD_Clear();
+ 117   1        LCD_Write_Com(0x0C);
+ 118   1        Delay(COM);
+ 119   1        TMOD=0x01;
+ 120   1        TH0=0;
+ 121   1        TL0=0;
+ 122   1        EA=1;
+ 123   1        ET0=1;
+ 124   1        US_VCC = 0;
+ 125   1        US_GND = 0;
+ 126   1        US_VCC = 1;
+ 127   1        Trig = 0;
+ 128   1      }
+ 129          void LCD_Write_Com(unsigned char com)
+ 130          {
+ 131   1        while(LCD_Check_Busy());
+ 132   1        RS_CLR;
+ 133   1        RW_CLR;
+ 134   1        DataPort = com;
+ 135   1        EN_SET;
+ 136   1        _nop_();
+ 137   1        EN_CLR;
+ 138   1      }
+ 139          void LCD_Write_Data(unsigned char Data)
+ 140          {
+ 141   1        while(LCD_Check_Busy());
+ 142   1        RS_SET;
+ 143   1        RW_CLR;
+ 144   1        DataPort = Data;
+ 145   1        EN_SET;
+ 146   1        _nop_();
+ 147   1        EN_CLR; 
+ 148   1      }
+ 149          void LCD_Write_String(unsigned char x, unsigned char y, unsigned char *s)
+ 150          {
+ 151   1        if(y == 0)
+ 152   1        {
+ 153   2          LCD_Write_Com(0x80 + x);
+ 154   2        }
+ 155   1        else
+ 156   1        {
+ 157   2          LCD_Write_Com(0xC0 + x);
+ 158   2        }
+ 159   1        while(*s)
+ 160   1        {
+ 161   2          LCD_Write_Data(*s);
+ 162   2          s++;
+ 163   2        }
+ 164   1      }
+ 165          void LCD_Write_Char(unsigned char x, unsigned char y, unsigned char Data)
+ 166          {
+ 167   1        if(y == 0)
+ 168   1        {
+ 169   2          LCD_Write_Com(0x80 + x);
+ 170   2        }
+ 171   1        else
+ 172   1        {
+ 173   2          LCD_Write_Com(0xC0 + x);
+ 174   2        }
+ 175   1        LCD_Write_Data(Data);
+ 176   1      }
+C51 COMPILER V9.56.0.0   20190420_____________                                             04/22/2019 19:47:33 PAGE 4   
+
+ 177          void Check_Distance(void)//è®¡ç®—å‡½æ•°
+ 178          {
+ 179   1        unsigned int T, Sum = 0, y, x;
+ 180   1        for(y = 0;y < 5;y++)
+ 181   1        {
+ 182   2          Trig = 1;
+ 183   2          for(x = 0;x < 10;x++)
+ 184   2            _nop_();
+ 185   2          Trig = 0;
+ 186   2          while(!Echo);//å½“ECHOè„šä¸º1ï¼Œå¼€å§‹è®°æ—¶
+ 187   2          TR0 = 1;
+ 188   2          while(Echo);//å½“ECHOè„šä¸º0ï¼Œå…³é—­è®¡æ—¶
+ 189   2          TR0 = 0;
+ 190   2          //LCD_Clear();
+ 191   2          T = TH0 * 256 + TL0;
+ 192   2          TH0 = 0;
+ 193   2          TL0 = 0;
+ 194   2          Sum += T * 0.18772;// 100;  //å•ä½æ¯«ç±³
+ 195   2          Delay(y + 7);
+ 196   2        }
+ 197   1        Distance = Sum / 5;
+ 198   1      }
+ 199          void Out(void) interrupt 1
+ 200          {
+ 201   1        TR0 = 0;
+ 202   1        TH0 = 0;
+ 203   1        TL0 = 0;
+ 204   1        LCD_Clear();
+ 205   1        LCD_Write_String(3, 1, "Over Range!");
+ 206   1        Delay(300);
+ 207   1        LCD_Clear();
+ 208   1        Delay(300);
+ 209   1      } 
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    643    ----
+   CONSTANT SIZE    =     12    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     17      10
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  2 WARNING(S),  0 ERROR(S)

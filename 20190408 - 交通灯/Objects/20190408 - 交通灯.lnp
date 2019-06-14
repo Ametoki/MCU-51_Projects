@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\20190408 - 交通灯.obj" 
+TO ".\Objects\20190408 - 交通灯" 
+PRINT(".\Listings\20190408 - 交通灯.m51") RAMSIZE(256) 

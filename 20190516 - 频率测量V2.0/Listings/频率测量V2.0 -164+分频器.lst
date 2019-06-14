@@ -1,0 +1,228 @@
+C51 COMPILER V9.56.0.0   ________V2_0__164_______                                          05/20/2019 15:03:52 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE ________V2_0__164_______
+OBJECT MODULE PLACED IN .\Objects\∆µ¬ ≤‚¡øV2.0 -164+∑÷∆µ∆˜.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\keil\C51\BIN\C51.EXE ∆µ¬ ≤‚¡øV2.0 -164+∑÷∆µ∆˜.c OPTIMIZE(8,SPEED) BROWSE DEB
+                    -UG OBJECTEXTEND PRINT(.\Listings\∆µ¬ ≤‚¡øV2.0 -164+∑÷∆µ∆˜.lst) TABS(2) OBJECT(.\Objects\∆µ¬ ≤‚¡øV2.0 -164+∑÷∆µ∆˜.obj)
+
+line level    source
+
+   1          //ÊØîËæÉÁ≤æÂáÜÁöÑÈ¢ëÁéáÊµãÈáèÁ®ãÂ∫è
+   2          #include<regx52.h>
+   3          sbit Pulse = P3^5;
+   4          sbit SEG_EN = P1^7;
+   5          bit Range_Mode;
+   6          unsigned char code Disp_Tab_2[] = {0x77,0x14,0xb3,0xb6,0xd4,0xe6,0xe7,0x34,0xf7,0xf6,0x00}, Division[8] = 
+             -{1, 2, 4, 8, 16, 32, 64, 128};
+   7          unsigned long int Fre[8] = {0}, temp;
+   8          double double_temp;
+   9          unsigned int Multi = 1800, t;
+  10          unsigned char Offset = 0x02, sum_flag, dis_flag, first_flag, Dvs = 7;//Êó∂Èó¥Ë°•ÂÅø
+  11          void Timer_Init_H(void);
+  12          void Timer_Init_L(void);
+  13          void Display(void);
+  14          void Delay(unsigned int i);
+  15          void main(void)
+  16          {
+  17   1        unsigned char i;
+  18   1        SCON = 0x00;//‰∏≤Âè£ÊñπÂºè0ËæìÂá∫
+  19   1        Timer_Init_H();
+  20   1        Display();
+  21   1        while(1)
+  22   1        {
+  23   2          P1 = Dvs;
+  24   2          if(!Range_Mode)
+  25   2          {
+  26   3            if(!t)
+  27   3            {
+  28   4              if(dis_flag)
+  29   4              {
+  30   5                if(!first_flag)
+  31   5                  temp = Fre[sum_flag] * 8 * Division[Dvs];
+  32   5                Display();
+  33   5              }
+  34   4              if(Dvs)
+  35   4              {
+  36   5                if(Fre[sum_flag] > 3E4)
+  37   5                  {
+  38   6                    if(Fre[sum_flag] > 6E4)
+  39   6                    {
+  40   7                      Dvs++;
+  41   7                      Timer_Init_H();
+  42   7                    }
+  43   6                    else
+  44   6                    {
+  45   7                      dis_flag = 1;
+  46   7                      sum_flag++;
+  47   7                    }
+  48   6                  }
+  49   5                else
+  50   5                {
+  51   6                  Dvs--;
+  52   6                  Timer_Init_H();
+  53   6                }
+C51 COMPILER V9.56.0.0   ________V2_0__164_______                                          05/20/2019 15:03:52 PAGE 2   
+
+  54   5              }
+  55   4              else
+  56   4              {
+  57   5                if(Fre[sum_flag] >= 12)
+  58   5                {
+  59   6                  if(Fre[sum_flag] > 3E4)
+  60   6                  {
+  61   7                    Dvs++;
+  62   7                    Timer_Init_H();
+  63   7                  }
+  64   6                  else
+  65   6                  {
+  66   7                    dis_flag = 1;
+  67   7                    sum_flag++;
+  68   7                  }
+  69   6                }
+  70   5                else
+  71   5                  Timer_Init_L();
+  72   5              }
+  73   4              if(sum_flag == 8)
+  74   4              {
+  75   5                sum_flag = 0;
+  76   5                first_flag = 1;
+  77   5              }
+  78   4            }
+  79   3          }
+  80   2          else if(Range_Mode)
+  81   2          {
+  82   3            for(i = 0;i < 8;i++)
+  83   3            {
+  84   4              while(!Pulse);
+  85   4              while(Pulse);
+  86   4              TR0 = 1;
+  87   4              while(!Pulse);
+  88   4              while(Pulse);
+  89   4              TR0 = 0;
+  90   4              double_temp = 2304E8 / ((double)t * 256 + (double)TL0 - 1);
+  91   4              Fre[i] = (unsigned long int)double_temp;
+  92   4              if(Fre[i] >= 12E6)
+  93   4              {
+  94   5                Dvs++;
+  95   5                Timer_Init_H();
+  96   5              }
+  97   4              if(!first_flag)
+  98   4                temp = Fre[i] * 8;
+  99   4              TH0 = 0;
+ 100   4              TL0 = 0;
+ 101   4              t = 0;
+ 102   4              Display();
+ 103   4              if(Fre[i] >= 2E6)
+ 104   4                Delay(230);
+ 105   4            }
+ 106   3            first_flag = 1;
+ 107   3          }
+ 108   2        }
+ 109   1      }
+ 110          void Timer_Init_H(void)
+ 111          {
+ 112   1        unsigned char i;
+ 113   1        TMOD = 0x52;
+ 114   1        TH0 = 0x80;
+ 115   1        TL0 = 0x80;
+C51 COMPILER V9.56.0.0   ________V2_0__164_______                                          05/20/2019 15:03:52 PAGE 3   
+
+ 116   1        TH1 = 0;
+ 117   1        TL1 = 0;
+ 118   1        EA = 1;
+ 119   1        ET0 = 1;
+ 120   1        TR0 = 1;
+ 121   1        TR1 = 1;
+ 122   1        t = 0;
+ 123   1        sum_flag = 0;
+ 124   1        first_flag = 0;
+ 125   1        dis_flag = 0;
+ 126   1        Range_Mode = 0;
+ 127   1        for(i = 0;i < 8;i++)
+ 128   1          Fre[i] = 0;
+ 129   1      }
+ 130          void Timer_Init_L(void)
+ 131          {
+ 132   1        unsigned char i;
+ 133   1        TMOD = 0x02;
+ 134   1        TR0 = 0;
+ 135   1        TR1 = 0;
+ 136   1        TH0 = 0;
+ 137   1        TL0 = 0;
+ 138   1        ET0 = 1;
+ 139   1        EA = 1;
+ 140   1        t = 0;
+ 141   1        sum_flag = 0;
+ 142   1        first_flag = 0;
+ 143   1        dis_flag = 0;
+ 144   1        Range_Mode = 1;
+ 145   1        Dvs = 0;
+ 146   1        for(i = 0;i < 8;i++)
+ 147   1          Fre[i] = 0;
+ 148   1      }
+ 149          void Display(void)
+ 150          {
+ 151   1        unsigned char i;
+ 152   1        if(first_flag)
+ 153   1        {
+ 154   2          for(i = 0;i < 8;i++)
+ 155   2            temp += Fre[i];
+ 156   2          temp *= Division[Dvs];
+ 157   2        }
+ 158   1        SEG_EN = 1;
+ 159   1        for(i = 0;i < 8;i++)
+ 160   1        {
+ 161   2          if(i == 6 && Range_Mode)
+ 162   2            SBUF = Disp_Tab_2[temp % 10] | 0x08;
+ 163   2          else
+ 164   2            SBUF = Disp_Tab_2[temp % 10];
+ 165   2          while(!TI);
+ 166   2          TI = 0;
+ 167   2          temp /= 10;
+ 168   2        }
+ 169   1        SEG_EN = 0;
+ 170   1        temp = 0;
+ 171   1        dis_flag = 0;
+ 172   1      }
+ 173          void Delay(unsigned int i)
+ 174          {
+ 175   1          unsigned char j;
+ 176   1          for(; i > 0; i--)
+ 177   1              for(j = 112; j > 0; j--);
+C51 COMPILER V9.56.0.0   ________V2_0__164_______                                          05/20/2019 15:03:52 PAGE 4   
+
+ 178   1      }
+ 179          void timer0(void) interrupt 1
+ 180          {
+ 181   1        t++;
+ 182   1        if(!Range_Mode)
+ 183   1        {
+ 184   2          if(t == Multi)
+ 185   2          {
+ 186   3            TR0 = 0;
+ 187   3            TR1 = 0;
+ 188   3            t = 0;
+ 189   3            Fre[sum_flag] = TH1 * 256 + TL1;
+ 190   3            TL0++;
+ 191   3            TH1 = 0;
+ 192   3            TL1 = 0;
+ 193   3            TR1 = 1;
+ 194   3            TR0 = 1;
+ 195   3          }
+ 196   2        }
+ 197   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    923    ----
+   CONSTANT SIZE    =     19    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     49       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

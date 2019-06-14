@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\20190427 - 频率测量+LCD显示屏.obj" 
+TO ".\Objects\20190427 - 频率测量 + LCD显示屏" 
+PRINT(".\Listings\20190427 - 频率测量 + LCD显示屏.m51") RAMSIZE(256) 

@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\20190415 - 中断计数器(作业版).obj" 
+TO ".\Objects\20190415 - 中断定时器(作业版)" 
+PRINT(".\Listings\20190415 - 中断定时器(作业版).m51")

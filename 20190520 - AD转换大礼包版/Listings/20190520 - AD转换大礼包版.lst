@@ -1,0 +1,96 @@
+C51 COMPILER V9.56.0.0   20190520___AD____________                                         05/21/2019 08:44:09 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE 20190520___AD____________
+OBJECT MODULE PLACED IN .\Objects\20190520 - AD转换大礼包版.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\keil\C51\BIN\C51.EXE 20190520 - AD转换大礼包版.c OPTIMIZE(8,SPEED) BROWSE DE
+                    -BUG OBJECTEXTEND PRINT(.\Listings\20190520 - AD转换大礼包版.lst) TABS(2) OBJECT(.\Objects\20190520 - AD转换大礼包版.obj)
+
+line level    source
+
+   1          #include<regx52.h>
+   2          sbit SEG_EN = P2^7;
+   3          sbit OE = P3^5;
+   4          sbit EOC = P2^0;
+   5          sbit ALE_START = P3^7;
+   6          sbit Int0_Trigger = P3^4;
+   7          unsigned char code Disp_Tab[] = {0x77,0x14,0xb3,0xb6,0xd4,0xe6,0xe7,0x34,0xf7,0xf6,0x00};
+   8          unsigned int x;
+   9          void Init(void);
+  10          void Display(void);
+  11          void Delay(unsigned int i);
+  12          void main(void)
+  13          {
+  14   1        P2 = 0x01;//ADC0808鍦板潃绔緭鍏ヤ负0;
+  15   1        Init();
+  16   1        while(1)
+  17   1        {
+  18   2          if(EOC == 1)
+  19   2            Int0_Trigger = 0;
+  20   2        }
+  21   1      }
+  22          void Delay(unsigned int i)
+  23          {
+  24   1          unsigned char j;
+  25   1          for(; i > 0; i--)
+  26   1              for(j = 112; j > 0; j--);
+  27   1      }
+  28          void Display(void)
+  29          {
+  30   1        char i;
+  31   1        unsigned int temp;
+  32   1        temp = x;
+  33   1        SEG_EN = 1;
+  34   1        for(i = 0;i < 8;i++)
+  35   1        {
+  36   2          if(i == 3)
+  37   2            SBUF = Disp_Tab[temp % 10] | 0x08;
+  38   2          else
+  39   2            SBUF = Disp_Tab[temp % 10];
+  40   2          temp /= 10;
+  41   2          while(!TI)
+  42   2            TI = 0;
+  43   2        }
+  44   1        SEG_EN = 0;
+  45   1      }
+  46          void Init(void)
+  47          {
+  48   1        Int0_Trigger = 1;
+  49   1        SCON = 0x00;
+  50   1        IT0 = 1;
+  51   1        EX0 = 1;
+  52   1        EA = 1;
+  53   1        ALE_START = 1;
+  54   1        Delay(1);
+C51 COMPILER V9.56.0.0   20190520___AD____________                                         05/21/2019 08:44:09 PAGE 2   
+
+  55   1        ALE_START = 0;
+  56   1      }
+  57          void Read_data(void) interrupt 0
+  58          {
+  59   1        EX0 = 0;
+  60   1        Int0_Trigger = 1;
+  61   1        OE = 1;
+  62   1        x = (P1 * 1E3) / 51;
+  63   1        OE = 0;
+  64   1        Display();
+  65   1        Delay(1000);
+  66   1        ALE_START = 1;
+  67   1        Delay(1);
+  68   1        ALE_START = 0;
+  69   1        EX0 = 1;
+  70   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    264    ----
+   CONSTANT SIZE    =     11    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

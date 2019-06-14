@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\20190513 - 74HC164串联的8位时钟.obj" 
+TO ".\Objects\20190513 - 74HC164串联的8位时钟" 
+PRINT(".\Listings\20190513 - 74HC164串联的8位时钟.m51") RAMSIZE(256) 

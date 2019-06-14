@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\20190330 - 基于小开发板的定时器.obj" 
+TO ".\Objects\20190330 - 基于小开发板的定时器" 
+PRINT(".\Listings\20190330 - 基于小开发板的定时器.m51") RAMSIZE(256) 

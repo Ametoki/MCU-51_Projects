@@ -1,0 +1,104 @@
+C51 COMPILER V9.56.0.0   20190406_______________                                           04/07/2019 01:04:22 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE 20190406_______________
+OBJECT MODULE PLACED IN .\Objects\20190406 - 电动马达调速.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\keil\C51\BIN\C51.EXE 20190406 - 电动马达调速.c OPTIMIZE(8,SPEED) BROWSE DEBU
+                    -G OBJECTEXTEND PRINT(.\Listings\20190406 - 电动马达调速.lst) TABS(2) OBJECT(.\Objects\20190406 - 电动马达调速.obj)
+
+line level    source
+
+   1          #include<regx52.h>
+   2          void delay(unsigned int xws);
+   3          sbit M = P3^0;
+   4          bit L = 0;
+   5          unsigned char temp;
+   6          unsigned int hz, t, i, p, q, a = 0;//10000 / hz = t;
+   7          unsigned int LedOut[4];
+   8          //共阴极数码管字模0 - 9 //增加“-”
+   9          unsigned char code Disp_Tab[] = {0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,0x40,0xbf};
+  10          //共阴极数码管位选控制 0 - 7
+  11          unsigned char code dispbit[4]={0x1f,0x2f,0x4f,0x8f};
+  12          void main(void)
+  13          {
+  14   1        hz = 5;
+  15   1        while(1)
+  16   1        {
+  17   2          p = 100 - (a * 100) / t;
+  18   2          if(p > 99)
+  19   2            p = 99;
+  20   2          LedOut[0] = Disp_Tab[hz / 10];
+  21   2          LedOut[1] = Disp_Tab[hz % 10]|0x80;
+  22   2          LedOut[2] = Disp_Tab[p / 10];
+  23   2          LedOut[3] = Disp_Tab[p % 10];
+  24   2          for(i = 0;i <= 3;i++)
+  25   2          {
+  26   3            P0 = LedOut[i];
+  27   3            P2 = 0xf8 + i;
+  28   3            if(L == 1)
+  29   3            {M = 1;}
+  30   3            delay(t - a);
+  31   3            if(P1 != 0xff)
+  32   3          {
+  33   4            M = 0;
+  34   4            delay(20);
+  35   4            if(P1 != 0xff)
+  36   4            {
+  37   5              while(P1 == temp);
+  38   5              temp = P1;
+  39   5              switch (temp)
+  40   5              {
+  41   6                case 0xef:
+  42   6                  if(a < t)
+  43   6                    a++;
+  44   6                  break;
+  45   6                case 0xdf:
+  46   6                  if(a > 0)
+  47   6                    a--;
+  48   6                  break;
+  49   6                case 0xbf:
+  50   6                  if(hz > 1)
+  51   6                    hz--;
+  52   6                  break;
+  53   6                case 0x7f:
+  54   6                  if(hz < 99)
+C51 COMPILER V9.56.0.0   20190406_______________                                           04/07/2019 01:04:22 PAGE 2   
+
+  55   6                    hz++;
+  56   6                  break;
+  57   6                case 0xfe:
+  58   6                  L = ~L;
+  59   6                  break;
+  60   6                default:
+  61   6                  break;
+  62   6              }
+  63   5            }
+  64   4          }
+  65   3            P0 = 0x00;
+  66   3            M = 0;
+  67   3            delay(a);
+  68   3          }
+  69   2          P3 = 0xff;
+  70   2          t = 10182 / (4 * hz);
+  71   2        }
+  72   1      }
+  73          void delay(unsigned int xws)    
+  74          {
+  75   1        unsigned int i,j;
+  76   1        for(i=xws;i>0;i--)
+  77   1          for(j=11;j>0;j--);
+  78   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    440    ----
+   CONSTANT SIZE    =     16    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     21    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,237 @@
+C51 COMPILER V9.56.0.0   20190417___LCD__________                                          04/20/2019 02:43:10 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE 20190417___LCD__________
+OBJECT MODULE PLACED IN .\Objects\20190417 - LCD“∫æßœ‘ æ∆¡.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\keil\C51\BIN\C51.EXE 20190417 - LCD“∫æßœ‘ æ∆¡.c OPTIMIZE(8,SPEED) BROWSE DEB
+                    -UG OBJECTEXTEND PRINT(.\Listings\20190417 - LCD“∫æßœ‘ æ∆¡.lst) TABS(2) OBJECT(.\Objects\20190417 - LCD“∫æßœ‘ æ∆¡.obj)
+
+line level    source
+
+   1          #include<regx52.h>
+   2          #include<intrins.h>
+   3          
+   4          sbit RS = P1^0;
+   5          sbit RW = P1^1;
+   6          sbit EN = P2^5;
+   7          sbit fm = P2^3;
+   8          #define RS_CLR RS=0
+   9          #define RS_SET RS=1
+  10          #define RW_CLR RW=0
+  11          #define RW_SET RW=1
+  12          #define EN_CLR EN=0
+  13          #define EN_SET EN=1
+  14          #define DataPort P0
+  15          
+  16          unsigned char COM = 50, Sec, Min, Hour, time;
+  17          void Beep(void);
+  18          void Alarm(void);
+  19          bit LCD_Check_Busy(void);
+  20          void Delay(unsigned int xms);
+  21          void LCD_Clear(void);
+  22          void Init(void);
+  23          void LCD_Write_Com(unsigned char com);
+  24          void LCD_Write_Data(unsigned char Data);
+  25          //void LCD_Write_String(unsigned char x, unsigned char y, unsigned char *s);
+  26          void LCD_Write_Char(unsigned char x, unsigned char y, unsigned char Data);
+  27          
+  28          void main(void)
+  29          {
+  30   1        while(LCD_Check_Busy());
+  31   1        Init();
+  32   1        while(1)
+  33   1        {
+  34   2          if(time % 5 == 0)
+  35   2          {
+  36   3            LCD_Write_Char(4, 0, 0x30 + (Hour / 10));
+  37   3            LCD_Write_Char(5, 0, 0x30 + (Hour % 10));
+  38   3            LCD_Write_Char(6, 0, ':');
+  39   3            LCD_Write_Char(7, 0, 0x30 + (Min / 10));
+  40   3            LCD_Write_Char(8, 0, 0x30 + (Min % 10));
+  41   3            LCD_Write_Char(9, 0, ':');
+  42   3            LCD_Write_Char(10, 0, 0x30 + (Sec / 10));
+  43   3            LCD_Write_Char(11, 0, 0x30 + (Sec % 10));
+  44   3          }
+  45   2          switch(P3)
+  46   2          {
+  47   3            case 0xEF:
+  48   3              while(P3 == 0xEF);
+  49   3              if (Hour < 23){Hour++;Beep();break;}
+  50   3              else{Hour = 0;Beep();break;}
+  51   3            case 0xDF:
+  52   3              while(P3 == 0xDF);
+  53   3              if (Min < 59){Min++;Beep();break;}
+  54   3              else{Min = 0;Beep();break;}
+C51 COMPILER V9.56.0.0   20190417___LCD__________                                          04/20/2019 02:43:10 PAGE 2   
+
+  55   3            case 0xBF:
+  56   3              while(P3 == 0xBF);
+  57   3              if (Sec < 59){Sec++;Beep();break;}
+  58   3              else{Sec = 0;Beep();break;}
+  59   3            //case 0x7F: 
+  60   3            //  while(P3 == 0x7F);
+  61   3              //if(hour == 0){hour = 1;Beep();break;}
+  62   3              //else{hour = 0;Beep();break;}
+  63   3          }
+  64   2        }
+  65   1      }
+  66          void Clock(void) interrupt 1
+  67          {
+  68   1        TH0=(65536-50000)/256;
+  69   1        TL0=(65536-50000)%256;
+  70   1        time++;
+  71   1        if(time == 20)
+  72   1        {
+  73   2          time = 0;
+  74   2          Sec++;
+  75   2          if(Sec == 60)
+  76   2          {
+  77   3            Sec = 0;
+  78   3            Min++;
+  79   3            if(Min == 60)
+  80   3            {
+  81   4              Min = 0;
+  82   4              Hour++;
+  83   4              if(Hour == 24)
+  84   4                Hour = 0;
+  85   4            }
+  86   3          }
+  87   2        }
+  88   1      }
+  89          void Beep(void)
+  90          {
+  91   1        fm = 1;
+  92   1        Delay(50);
+  93   1        fm = 1;
+  94   1      }
+  95          void Alarm(void)
+  96          {
+  97   1        unsigned int i, j;
+  98   1        for(j = 0;j < 48;j++)
+  99   1        {
+ 100   2            for(i = 0;i < 6; i++)
+ 101   2          {
+ 102   3            if(i < 4)
+ 103   3            {
+ 104   4              fm = 0;
+ 105   4              Delay(80);
+ 106   4              fm = 1;
+ 107   4              Delay(80);
+ 108   4            }
+ 109   3            else
+ 110   3            {
+ 111   4              Delay(80);
+ 112   4            }
+ 113   3          }
+ 114   2        }
+ 115   1      }
+ 116          bit LCD_Check_Busy(void)
+C51 COMPILER V9.56.0.0   20190417___LCD__________                                          04/20/2019 02:43:10 PAGE 3   
+
+ 117          {
+ 118   1        RS_CLR;
+ 119   1        RW_SET;
+ 120   1        EN_CLR;
+ 121   1        _nop_();
+ 122   1        EN_SET;
+ 123   1        return (bit)(DataPort & 0x80);
+ 124   1      }
+ 125          void Delay(unsigned int xms)        
+ 126          {
+ 127   1        unsigned int i,j;
+ 128   1        for(i=xms;i>0;i--)
+ 129   1          for(j=112;j>0;j--);
+ 130   1      }
+ 131          void LCD_Clear(void)
+ 132          {
+ 133   1        LCD_Write_Com(0x01);
+ 134   1        Delay(COM);
+ 135   1      }
+ 136          void Init(void)
+ 137          {
+ 138   1        LCD_Write_Com(0x38);
+ 139   1        Delay(COM);
+ 140   1        LCD_Write_Com(0x08);
+ 141   1        Delay(COM);
+ 142   1        LCD_Write_Com(0x06);
+ 143   1        Delay(COM);
+ 144   1        LCD_Clear();
+ 145   1        LCD_Write_Com(0x0C);
+ 146   1        Delay(COM);
+ 147   1        TMOD=0x01;
+ 148   1        TH0=(65536-50000)/256;
+ 149   1        TL0=(65536-50000)%256;
+ 150   1        EA=1;
+ 151   1        ET0=1;
+ 152   1        TR0=1;
+ 153   1        time = 0;
+ 154   1        Sec = 0;
+ 155   1        Min = 0;
+ 156   1        Hour = 0;
+ 157   1      }
+ 158          void LCD_Write_Com(unsigned char com)
+ 159          {
+ 160   1        while(LCD_Check_Busy());
+ 161   1        RS_CLR;
+ 162   1        RW_CLR;
+ 163   1        DataPort = com;
+ 164   1        EN_SET;
+ 165   1        _nop_();
+ 166   1        EN_CLR;
+ 167   1      }
+ 168          void LCD_Write_Data(unsigned char Data)
+ 169          {
+ 170   1        while(LCD_Check_Busy());
+ 171   1        RS_SET;
+ 172   1        RW_CLR;
+ 173   1        DataPort = Data;
+ 174   1        EN_SET;
+ 175   1        _nop_();
+ 176   1        EN_CLR; 
+ 177   1      }
+ 178          /*
+C51 COMPILER V9.56.0.0   20190417___LCD__________                                          04/20/2019 02:43:10 PAGE 4   
+
+ 179          void LCD_Write_String(unsigned char x, unsigned char y, unsigned char *s)
+ 180          {
+ 181            if(y == 0)
+ 182            {
+ 183              LCD_Write_Com(0x80 + x);
+ 184            }
+ 185            else
+ 186            {
+ 187              LCD_Write_Com(0xC0 + x);
+ 188            }
+ 189            while(*s)
+ 190            {
+ 191              LCD_Write_Data(*s);
+ 192              s++;
+ 193            }
+ 194          }
+ 195          */
+ 196          void LCD_Write_Char(unsigned char x, unsigned char y, unsigned char Data)
+ 197          {
+ 198   1        if(y == 0)
+ 199   1        {
+ 200   2          LCD_Write_Com(0x80 + x);
+ 201   2        }
+ 202   1        else
+ 203   1        {
+ 204   2          LCD_Write_Com(0xC0 + x);
+ 205   2        }
+ 206   1        LCD_Write_Data(Data);
+ 207   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    536    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      5       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

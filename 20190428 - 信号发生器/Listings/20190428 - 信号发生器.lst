@@ -1,0 +1,42 @@
+C51 COMPILER V9.56.0.0   20190428_____________                                             04/28/2019 10:37:30 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE 20190428_____________
+OBJECT MODULE PLACED IN .\Objects\20190428 - �źŷ�����.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\keil\C51\BIN\C51.EXE 20190428 - �źŷ�����.c OPTIMIZE(8,SPEED) BROWSE DEBUG 
+                    -OBJECTEXTEND PRINT(.\Listings\20190428 - �źŷ�����.lst) TABS(2) OBJECT(.\Objects\20190428 - �źŷ�����.obj)
+
+line level    source
+
+   1          #include<regx52.h.>
+   2          void init_com(void) 
+   3          { 
+   4   1          SCON=0x50; //串口工作方式1，8位UART，波特率可变  
+   5   1          TH2=0xFF;           
+   6   1          TL2=0xFD;   //波特率:115200 晶振=11.0592MHz 
+   7   1          RCAP2H=0xFF;   
+   8   1          RCAP2L=0xFD; //16位自动再装入值 
+   9   1      
+  10   1      /*****************/
+  11   1          TCLK=1;   
+  12   1          RCLK=1;   
+  13   1          C_T2=0;   
+  14   1          EXEN2=0; //波特率发生器工作方式
+  15   1      
+  16   1      /*****************/
+  17   1          TR2=1 ; //定时器2开始
+  18   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     26    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
