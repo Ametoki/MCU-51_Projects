@@ -7,20 +7,20 @@
 #define RW_SET RW=1
 #define EN_CLR EN=0
 #define EN_SET EN=1
-#define DataPort P0
-sbit RS = P1^0;
-sbit RW = P1^1;
-sbit EN = P2^5;
+#define DataPort SBUF
+sbit RS = P1^5;
+sbit RW = P1^6;
+sbit EN = P1^7;
 sbit ADD_A = P3^2;
 sbit ADD_B = P3^3;
 sbit ADD_C = P3^4;
 sbit Pulse = P3^5;
 bit Range_Mode, tag_flag = 0, dis_flag, first_flag;
 unsigned char code Char_Num[]="0123456789", Division[8] = {1, 2, 4, 8, 16, 32, 64, 128};
+unsigned char sum_flag, Dvs = 7, COM = 1;
+unsigned int Multi = 1800, t = 0;
 unsigned long int Fre[8] = {0}, temp, duty;
 double fre_temp, duty_temp;
-unsigned int Multi = 1800, t = 0;
-unsigned char sum_flag, Dvs = 7, COM = 100;
 bit LCD_Check_Busy(void);
 void Timer_Init_H(void);
 void Timer_Init_L(void);
@@ -56,18 +56,18 @@ void main(void)
 				if(Dvs)
 				{
 					if(Fre[sum_flag] > 3E4)
+					{
+						if(Fre[sum_flag] > 6E4 && Dvs < 7)
 						{
-							if(Fre[sum_flag] > 6E4 && Dvs < 7)
-							{
-								Dvs++;
-								Timer_Init_H();
-							}
-							else
-							{
-								dis_flag = 1;
-								sum_flag++;
-							}
+							Dvs++;
+							Timer_Init_H();
 						}
+						else
+						{
+							dis_flag = 1;
+							sum_flag++;
+						}
+					}
 					else
 					{
 						if(Dvs > 0)
@@ -137,6 +137,7 @@ void main(void)
 }
 void Init(void)
 {
+	SCON = 0x00;
 	LCD_Write_Com(0x38);
 	Delay(COM);
 	LCD_Write_Com(0x08);
@@ -194,12 +195,16 @@ void Timer_Init_L(void)
 }
 bit LCD_Check_Busy(void)
 {
+	Delay(COM);
+	return 0;
+	/***
 	RS_CLR;
 	RW_SET;
 	EN_CLR;
 	_nop_();
 	EN_SET;
 	return (bit)(DataPort & 0x80);
+	***/
 }
 void LCD_Clear(void)
 {

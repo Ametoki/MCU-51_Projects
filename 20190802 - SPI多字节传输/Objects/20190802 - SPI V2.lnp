@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\20190802 - SPI V2.0.obj" 
+TO ".\Objects\20190802 - SPI V2.0" 
+PRINT(".\Listings\20190802 - SPI V2.m51") RAMSIZE(256) 

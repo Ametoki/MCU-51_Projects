@@ -1,0 +1,279 @@
+C51 COMPILER V9.56.0.0   20190731___SPI_LCD1602                                            08/02/2019 15:13:04 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE 20190731___SPI_LCD1602
+OBJECT MODULE PLACED IN .\Objects\20190731 - SPI_LCD1602.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\keil\C51\BIN\C51.EXE 20190731 - SPI_LCD1602.c OPTIMIZE(8,SPEED) BROWSE DEBUG
+                    - OBJECTEXTEND PRINT(.\Listings\20190731 - SPI_LCD1602.lst) TABS(2) OBJECT(.\Objects\20190731 - SPI_LCD1602.obj)
+
+line level    source
+
+   1          //频率测量 + 1602A显示屏
+   2          #include<regx52.h>
+   3          #include<intrins.h>
+   4          #define RS_CLR RS=0
+   5          #define RS_SET RS=1
+   6          #define RW_CLR RW=0
+   7          #define RW_SET RW=1
+   8          #define EN_CLR EN=0
+   9          #define EN_SET EN=1
+  10          #define DataPort P0
+  11          #define delayNOP(); {_nop_();};
+  12          sbit RS = P2^6;//P3^5;
+  13          sbit RW = P2^5;//P2^5;
+  14          sbit EN = P2^7;//P3^4;
+  15          sbit key1 = P3^1;
+  16          sbit key2 = P3^0;
+  17          sbit SCK = P1^0;//p1.0口模拟时钟输出
+  18          sbit MOSI = P1^1;//p1.1口模拟主机输出
+  19          sbit MISO = P1^2;//p1.2口模拟主机输入
+  20          sbit SS1 = P1^3;//p1.3口模拟片选
+  21          sbit FUCK = P1^7;
+  22          //unsigned char code Char_Num[]="0123456789";
+  23          unsigned int COM = 2;
+  24          unsigned char ch = 0x30;
+  25          bit LCD_Check_Busy(void);
+  26          void Init(void);
+  27          void LCD_Clear(void);
+  28          void LCD_Write_Com(unsigned char com);
+  29          void LCD_Write_Data(unsigned char Data);
+  30          //void LCD_Write_String(unsigned char x, unsigned char y, unsigned char *s);
+  31          void LCD_Write_Char(unsigned char x, unsigned char y, unsigned char Data);
+  32          void LCD_Tag(void);
+  33          //void SPI_Send_Byte(unsigned char Data);
+  34          //unsigned char SPI_Recv_Byte(void);
+  35          unsigned char SPI_Send_Recv_Byte(unsigned char Data);
+  36          void Delay(unsigned int xms);
+  37          void main(void)
+  38          {
+  39   1        unsigned char recv_temp, i = 5;
+  40   1        while(LCD_Check_Busy());
+  41   1        Init();
+  42   1        P3 = 0x0f;
+  43   1        while(1)
+  44   1        {
+  45   2          if(!key1)
+  46   2          {
+  47   3            Delay(20);
+  48   3            if(!key1)
+  49   3            {
+  50   4              while(!key1);
+  51   4              if(ch < 256)
+  52   4                ch += 1;
+  53   4            }
+  54   3          }
+C51 COMPILER V9.56.0.0   20190731___SPI_LCD1602                                            08/02/2019 15:13:04 PAGE 2   
+
+  55   2          else if(!key2)
+  56   2          {
+  57   3            Delay(20);
+  58   3            if(!key2)
+  59   3            {
+  60   4              while(!key2);
+  61   4              if(ch > 0)
+  62   4                ch -= 1;
+  63   4            }
+  64   3          }
+  65   2          recv_temp = SPI_Send_Recv_Byte(ch);
+  66   2          recv_temp = SPI_Send_Recv_Byte(ch);
+  67   2          //Delay(100);
+  68   2          ch = recv_temp;
+  69   2          LCD_Write_Char(0, 0, ch);
+  70   2          LCD_Write_Char(0, 1, recv_temp);
+  71   2        }
+  72   1      }
+  73          void Init(void)
+  74          {
+  75   1        LCD_Write_Com(0x38);
+  76   1        Delay(COM);
+  77   1        LCD_Write_Com(0x08);
+  78   1        Delay(COM);
+  79   1        LCD_Write_Com(0x06);
+  80   1        Delay(COM);
+  81   1        LCD_Clear();
+  82   1        LCD_Write_Com(0x0C);
+  83   1        Delay(COM);
+  84   1        SS1 = 1;
+  85   1        SCK = 0;
+  86   1        FUCK = 0;
+  87   1      }
+  88          bit LCD_Check_Busy(void)
+  89          {
+  90   1        RS_CLR;
+  91   1        RW_SET;
+  92   1        EN_CLR;
+  93   1        _nop_();
+  94   1        EN_SET;
+  95   1        return (bit)(DataPort & 0x80);
+  96   1      }
+  97          void LCD_Clear(void)
+  98          {
+  99   1        LCD_Write_Com(0x01);
+ 100   1        Delay(COM);
+ 101   1      }
+ 102          void LCD_Write_Com(unsigned char com)
+ 103          {
+ 104   1        while(LCD_Check_Busy());
+ 105   1        RS_CLR;
+ 106   1        RW_CLR;
+ 107   1        DataPort = com;
+ 108   1        EN_SET;
+ 109   1        _nop_();
+ 110   1        EN_CLR;
+ 111   1      }
+ 112          void LCD_Write_Data(unsigned char Data)
+ 113          {
+ 114   1        while(LCD_Check_Busy());
+ 115   1        RS_SET;
+ 116   1        RW_CLR;
+C51 COMPILER V9.56.0.0   20190731___SPI_LCD1602                                            08/02/2019 15:13:04 PAGE 3   
+
+ 117   1        DataPort = Data;
+ 118   1        EN_SET;
+ 119   1        _nop_();
+ 120   1        EN_CLR; 
+ 121   1      }
+ 122          /*
+ 123          void LCD_Write_String(unsigned char x, unsigned char y, unsigned char *s)
+ 124          {
+ 125            if(y == 0)
+ 126            {
+ 127              LCD_Write_Com(0x80 + x);
+ 128            }
+ 129            else
+ 130            {
+ 131              LCD_Write_Com(0xC0 + x);
+ 132            }
+ 133            while(*s)
+ 134            {
+ 135              LCD_Write_Data(*s);
+ 136              s++;
+ 137            }
+ 138          }
+ 139          */
+ 140          void LCD_Write_Char(unsigned char x, unsigned char y, unsigned char Data)
+ 141          {
+ 142   1        if(y == 0)
+ 143   1        {
+ 144   2          LCD_Write_Com(0x80 + x);
+ 145   2        }
+ 146   1        else
+ 147   1        {
+ 148   2          LCD_Write_Com(0xC0 + x);
+ 149   2        }
+ 150   1        LCD_Write_Data(Data);
+ 151   1      }
+ 152          /*
+ 153          void LCD_Tag(void)
+ 154          {
+ 155            ;
+ 156          }
+ 157          */
+ 158          /*
+ 159          //--------------------------------------------------------------------------------------------------
+ 160          // 函数名称： SPISendByte
+ 161          // 入口参数： Data
+ 162          // 函数功能： 发送一个字节
+ 163          //--------------------------------------------------------------------------------------------------
+ 164          void SPI_Send_Byte(unsigned char Data)
+ 165          {
+ 166            unsigned char n;//向SDA上发送一位数据字节，共八位  
+ 167            SCK = 1;//时钟置为高电平
+ 168            SS1 = 0;//选择从机
+ 169            for(n = 0;n < 8;n++)
+ 170            {
+ 171              delayNOP();
+ 172              SCK = 0;
+ 173              if((Data & 0x80) == 0x80)//若发送数据的最高位为1，则发送1
+ 174                MOSI = 1;
+ 175              else
+ 176                MOSI = 0;//最高位数据为0，发送0
+ 177              delayNOP();
+ 178              Data = Data << 1;//发送数据左移一位
+C51 COMPILER V9.56.0.0   20190731___SPI_LCD1602                                            08/02/2019 15:13:04 PAGE 4   
+
+ 179              SCK = 1;//时钟置为高电平
+ 180            }
+ 181          }
+ 182          //--------------------------------------------------------------------------------------------------
+ 183          // 函数名称： SPIreceiveByte
+ 184          // 返回接收的数据
+ 185          // 函数功能： 接收一字节子程序
+ 186          //--------------------------------------------------------------------------------------------------
+ 187          unsigned char SPI_Recv_Byte(void)
+ 188          {
+ 189            unsigned char n;
+ 190            unsigned char data_recv;
+ 191            SCK = 1;
+ 192            SS1 = 0;
+ 193            for(n = 0;n < 8;n++)
+ 194            {
+ 195              delayNOP();
+ 196              SCK = 0;
+ 197              delayNOP();
+ 198              data_recv = data_recv << 1;
+ 199              if(MISO == 1)
+ 200                data_recv = data_recv | 0x01;
+ 201              else
+ 202                data_recv = data_recv & 0xfe;
+ 203              SCK = 1;
+ 204            }
+ 205            return(data_recv);
+ 206          }
+ 207          */
+ 208          unsigned char SPI_Send_Recv_Byte(unsigned char Data)
+ 209          {
+ 210   1        unsigned char n;
+ 211   1        unsigned char data_recv = 0;
+ 212   1        SS1 = 0;
+ 213   1        for(n = 0;n < 9;n++)
+ 214   1        {
+ 215   2          SCK = 0;//时钟置为低电平
+ 216   2          {
+ 217   3          if((Data & 0x80) == 0x80)//若发送数据的最高位为1，则发送1
+ 218   3            MOSI = 1;
+ 219   3          else
+ 220   3            MOSI = 0;//最高位数据为0，发送0
+ 221   3            Data = _crol_(Data, 1);//发送数据左移一位
+ 222   3          }
+ 223   2          //Delay(1);
+ 224   2          delayNOP();
+ 225   2          SCK = 1;
+ 226   2          if(n > 0)
+ 227   2          {
+ 228   3            FUCK = 1;
+ 229   3            data_recv = _crol_(data_recv, 1);
+ 230   3            if(MISO)
+ 231   3              data_recv = data_recv | 0x01;
+ 232   3            else
+ 233   3              data_recv = data_recv & 0xfe;
+ 234   3            FUCK = 0;
+ 235   3          }
+ 236   2          //Delay(1);
+ 237   2          delayNOP();
+ 238   2        }
+ 239   1        SS1 = 1;
+ 240   1        return(data_recv);
+C51 COMPILER V9.56.0.0   20190731___SPI_LCD1602                                            08/02/2019 15:13:04 PAGE 5   
+
+ 241   1      }
+ 242          void Delay(unsigned int xms)        
+ 243          {
+ 244   1        unsigned int i,j;
+ 245   1        for(i = xms;i > 0;i--)
+ 246   1          for(j = 112;j > 0;j--);
+ 247   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    338    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

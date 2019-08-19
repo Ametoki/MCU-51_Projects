@@ -1,0 +1,355 @@
+C51 COMPILER V9.56.0.0   20190802___SPI_V2_0                                               08/03/2019 21:16:00 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE 20190802___SPI_V2_0
+OBJECT MODULE PLACED IN .\Objects\20190802 - SPI V2.0.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\keil\C51\BIN\C51.EXE 20190802 - SPI V2.0.C OPTIMIZE(8,SPEED) BROWSE DEBUG OB
+                    -JECTEXTEND PRINT(.\Listings\20190802 - SPI V2.0.lst) TABS(2) OBJECT(.\Objects\20190802 - SPI V2.0.obj)
+
+line level    source
+
+   1          //频率测量 + 1602A显示屏
+   2          #include<regx52.h>
+   3          #include<intrins.h>
+   4          #define RS_CLR RS=0
+   5          #define RS_SET RS=1
+   6          #define RW_CLR RW=0
+   7          #define RW_SET RW=1
+   8          #define EN_CLR EN=0
+   9          #define EN_SET EN=1
+  10          #define DataPort P0
+  11          #define delayNOP(); {_nop_();};
+  12          sbit RS = P2^6;//P3^5;
+  13          sbit RW = P2^5;//P2^5;
+  14          sbit EN = P2^7;//P3^4;
+  15          sbit key1 = P3^1;
+  16          sbit key2 = P3^0;
+  17          sbit SCK = P1^0;//p1.0口模拟时钟输出
+  18          sbit MOSI = P1^1;//p1.1口模拟主机输出
+  19          sbit MISO = P1^2;//p1.2口模拟主机输入
+  20          sbit SS1 = P1^3;//p1.3口模拟片选
+  21          unsigned int COM = 2;
+  22          unsigned char ch[5] = {0x23, 0x31, 0x32, 0x33, 0x34};
+  23          unsigned char Data[5];
+  24          bit LCD_Check_Busy(void);
+  25          void Init(void);
+  26          void LCD_Clear(void);
+  27          void LCD_Write_Com(unsigned char com);
+  28          void LCD_Write_Data(unsigned char Data);
+  29          void LCD_Write_String(unsigned char x, unsigned char y, unsigned char *s);
+  30          void LCD_Write_Char(unsigned char x, unsigned char y, unsigned char Data);
+  31          void LCD_Tag(void);
+  32          //void SPI_Send_Byte(unsigned char Data);
+  33          //unsigned char SPI_Recv_Byte(void);
+  34          unsigned char SPI_Send_Recv_Byte(unsigned char Data);
+  35          void Delay(unsigned int xms);
+  36          void main(void)
+  37          {
+  38   1        unsigned char i, j;
+  39   1        double fs_cnt, fx_cnt, data_clk, data_fx;
+  40   1        unsigned long int temp;
+  41   1        double Data[5], fs_data[5], fx_data[5], clk_data[5], weight[3] = {256, 65536, 16777216};
+  42   1        while(LCD_Check_Busy());
+  43   1        Init();
+  44   1        while(1)
+  45   1        {
+  46   2          for(j = 0;j < 3;j++)
+  47   2          {
+  48   3                for(i = 0;i < 5;i++)
+  49   3            Data[i] = SPI_Send_Recv_Byte(0);
+  50   3          if(Data[0] == 0xAA)
+  51   3          {
+  52   4            fs_data[1] = Data[1];
+  53   4            fs_data[2] = Data[2];
+  54   4            fs_data[3] = Data[3];
+C51 COMPILER V9.56.0.0   20190802___SPI_V2_0                                               08/03/2019 21:16:00 PAGE 2   
+
+  55   4            fs_data[4] = Data[4];
+  56   4          }
+  57   3          else if(Data[1] == 0xAA)
+  58   3          {
+  59   4            fs_data[0] = 0x20;
+  60   4            fs_data[1] = Data[2];
+  61   4            fs_data[2] = Data[3];
+  62   4            fs_data[3] = Data[4];
+  63   4            fs_data[4] = Data[0];
+  64   4          }
+  65   3          else if(Data[2] == 0xAA)
+  66   3          {
+  67   4            fs_data[0] = 0x20;
+  68   4            fs_data[1] = Data[3];
+  69   4            fs_data[2] = Data[4];
+  70   4            fs_data[3] = Data[0];
+  71   4            fs_data[4] = Data[1];
+  72   4          }
+  73   3          else if(Data[3] == 0xAA)
+  74   3          {
+  75   4            fs_data[0] = 0x20;
+  76   4            fs_data[1] = Data[4];
+  77   4            fs_data[2] = Data[0];
+  78   4            fs_data[3] = Data[1];
+  79   4            fs_data[4] = Data[2];
+  80   4          }
+  81   3          else if(Data[4] == 0xAA)
+  82   3          {
+  83   4            fs_data[0] = 0x20;
+  84   4            fs_data[1] = Data[0];
+  85   4            fs_data[2] = Data[1];
+  86   4            fs_data[3] = Data[2];
+  87   4            fs_data[4] = Data[3];
+  88   4          }
+  89   3          else if(Data[0] == 0xBB)
+  90   3          {
+  91   4            fx_data[1] = Data[1];
+  92   4            fx_data[2] = Data[2];
+  93   4            fx_data[3] = Data[3];
+  94   4            fx_data[4] = Data[4];
+  95   4          }
+  96   3          else if(Data[1] == 0xBB)
+  97   3          {
+  98   4            fx_data[0] = 0x20;
+  99   4            fx_data[1] = Data[2];
+ 100   4            fx_data[2] = Data[3];
+ 101   4            fx_data[3] = Data[4];
+ 102   4            fx_data[4] = Data[0];
+ 103   4          }
+ 104   3          else if(Data[2] == 0xBB)
+ 105   3          {
+ 106   4            fx_data[0] = 0x20;
+ 107   4            fx_data[1] = Data[3];
+ 108   4            fx_data[2] = Data[4];
+ 109   4            fx_data[3] = Data[0];
+ 110   4            fx_data[4] = Data[1];
+ 111   4          }
+ 112   3          else if(Data[3] == 0xBB)
+ 113   3          {
+ 114   4            fx_data[0] = 0x20;
+ 115   4            fx_data[1] = Data[4];
+ 116   4            fx_data[2] = Data[0];
+C51 COMPILER V9.56.0.0   20190802___SPI_V2_0                                               08/03/2019 21:16:00 PAGE 3   
+
+ 117   4            fx_data[3] = Data[1];
+ 118   4            fx_data[4] = Data[2];
+ 119   4          }
+ 120   3          else if(Data[4] == 0xBB)
+ 121   3          {
+ 122   4            fx_data[0] = 0x20;
+ 123   4            fx_data[1] = Data[0];
+ 124   4            fx_data[2] = Data[1];
+ 125   4            fx_data[3] = Data[2];
+ 126   4            fx_data[4] = Data[3];
+ 127   4          }
+ 128   3          else if(Data[0] == 0xCC)
+ 129   3          {
+ 130   4            clk_data[1] = Data[1];
+ 131   4            clk_data[2] = Data[2];
+ 132   4            clk_data[3] = Data[3];
+ 133   4            clk_data[4] = Data[4];
+ 134   4          }
+ 135   3          else if(Data[1] == 0xCC)
+ 136   3          {
+ 137   4            clk_data[0] = 0x20;
+ 138   4            clk_data[1] = Data[2];
+ 139   4            clk_data[2] = Data[3];
+ 140   4            clk_data[3] = Data[4];
+ 141   4            clk_data[4] = Data[0];
+ 142   4          }
+ 143   3          else if(Data[2] == 0xCC)
+ 144   3          {
+ 145   4            clk_data[0] = 0x20;
+ 146   4            clk_data[1] = Data[3];
+ 147   4            clk_data[2] = Data[4];
+ 148   4            clk_data[3] = Data[0];
+ 149   4            clk_data[4] = Data[1];
+ 150   4          }
+ 151   3          else if(Data[3] == 0xCC)
+ 152   3          {
+ 153   4            clk_data[0] = 0x20;
+ 154   4            clk_data[1] = Data[4];
+ 155   4            clk_data[2] = Data[0];
+ 156   4            clk_data[3] = Data[1];
+ 157   4            clk_data[4] = Data[2];
+ 158   4          }
+ 159   3          else if(Data[4] == 0xCC)
+ 160   3          {
+ 161   4            clk_data[0] = 0x20;
+ 162   4            clk_data[1] = Data[0];
+ 163   4            clk_data[2] = Data[1];
+ 164   4            clk_data[3] = Data[2];
+ 165   4            clk_data[4] = Data[3];
+ 166   4          }
+ 167   3          }
+ 168   2          //temp = SPI_Recv_Byte();
+ 169   2          fs_cnt = fs_data[4] + fs_data[3] * weight[0] + fs_data[2] * weight[1] + fs_data[1] * weight[2];
+ 170   2          //Delay(100);
+ 171   2          fx_cnt = fx_data[4] + fx_data[3] * weight[0] + fx_data[2] * weight[1] + fx_data[1] * weight[2];
+ 172   2          //Delay(100);
+ 173   2          data_clk = clk_data[4] + clk_data[3] * weight[0] + clk_data[2] * weight[1] + clk_data[1] * weight[2];
+ 174   2          //Delay(100);
+ 175   2          data_fx = (data_clk / fs_cnt) * fx_cnt;
+ 176   2          temp = (unsigned long int)data_fx;
+ 177   2          //temp = (unsigned long int)fs_cnt;
+ 178   2          //temp = (unsigned long int)fx_cnt;
+C51 COMPILER V9.56.0.0   20190802___SPI_V2_0                                               08/03/2019 21:16:00 PAGE 4   
+
+ 179   2          //temp = (unsigned long int)data_clk;
+ 180   2          Delay(100);
+ 181   2          for(i = 15;i > 0;i--)
+ 182   2          {
+ 183   3            LCD_Write_Char(i, 1, temp % 10 + 0x30);
+ 184   3            temp /= 10;
+ 185   3          }
+ 186   2          /*
+ 187   2          LCD_Write_String(0,0,"      GET!      ");
+ 188   2          data_fx = Disp_Data[1] + Disp_Data[2] * 256;// + Disp_Data[3] + Disp_Data[4];
+ 189   2          //data_fx = Disp_Data[1] + Disp_Data[2] * 256 + Disp_Data[3] * 65536 + Disp_Data[4] * 16777216;
+ 190   2          temp = data_fx;
+ 191   2          for(i = 15;i > 0;i--)
+ 192   2          {
+ 193   2            LCD_Write_Char(i, 1, temp % 10 + 0x30);
+ 194   2            temp /= 10;
+ 195   2          }
+ 196   2          */
+ 197   2          Delay(500);
+ 198   2        }
+ 199   1      }
+ 200          void Init(void)
+ 201          {
+ 202   1        LCD_Write_Com(0x38);
+ 203   1        Delay(COM);
+ 204   1        LCD_Write_Com(0x08);
+ 205   1        Delay(COM);
+ 206   1        LCD_Write_Com(0x06);
+ 207   1        Delay(COM);
+ 208   1        LCD_Clear();
+ 209   1        LCD_Write_Com(0x0C);
+ 210   1        Delay(COM);
+ 211   1        SS1 = 1;
+ 212   1        SCK = 0;
+ 213   1      }
+ 214          bit LCD_Check_Busy(void)
+ 215          {
+ 216   1        RS_CLR;
+ 217   1        RW_SET;
+ 218   1        EN_CLR;
+ 219   1        _nop_();
+ 220   1        EN_SET;
+ 221   1        return (bit)(DataPort & 0x80);
+ 222   1      }
+ 223          void LCD_Clear(void)
+ 224          {
+ 225   1        LCD_Write_Com(0x01);
+ 226   1        Delay(COM);
+ 227   1      }
+ 228          void LCD_Write_Com(unsigned char com)
+ 229          {
+ 230   1        while(LCD_Check_Busy());
+ 231   1        RS_CLR;
+ 232   1        RW_CLR;
+ 233   1        DataPort = com;
+ 234   1        EN_SET;
+ 235   1        _nop_();
+ 236   1        EN_CLR;
+ 237   1      }
+ 238          void LCD_Write_Data(unsigned char Data)
+ 239          {
+ 240   1        while(LCD_Check_Busy());
+C51 COMPILER V9.56.0.0   20190802___SPI_V2_0                                               08/03/2019 21:16:00 PAGE 5   
+
+ 241   1        RS_SET;
+ 242   1        RW_CLR;
+ 243   1        DataPort = Data;
+ 244   1        EN_SET;
+ 245   1        _nop_();
+ 246   1        EN_CLR; 
+ 247   1      }
+ 248          
+ 249          void LCD_Write_String(unsigned char x, unsigned char y, unsigned char *s)
+ 250          {
+ 251   1        if(y == 0)
+ 252   1        {
+ 253   2          LCD_Write_Com(0x80 + x);
+ 254   2        }
+ 255   1        else
+ 256   1        {
+ 257   2          LCD_Write_Com(0xC0 + x);
+ 258   2        }
+ 259   1        while(*s)
+ 260   1        {
+ 261   2          LCD_Write_Data(*s);
+ 262   2          s++;
+ 263   2        }
+ 264   1      }
+ 265          
+ 266          void LCD_Write_Char(unsigned char x, unsigned char y, unsigned char Data)
+ 267          {
+ 268   1        if(y == 0)
+ 269   1        {
+ 270   2          LCD_Write_Com(0x80 + x);
+ 271   2        }
+ 272   1        else
+ 273   1        {
+ 274   2          LCD_Write_Com(0xC0 + x);
+ 275   2        }
+ 276   1        LCD_Write_Data(Data);
+ 277   1      }
+ 278          /*
+ 279          void LCD_Tag(void)
+ 280          {
+ 281            ;
+ 282          }
+ 283          */
+ 284          unsigned char SPI_Send_Recv_Byte(unsigned char Data)
+ 285          {
+ 286   1        unsigned char n;
+ 287   1        unsigned char data_recv = 0;
+ 288   1        SS1 = 0;
+ 289   1        for(n = 0;n < 9;n++)
+ 290   1        {
+ 291   2          SCK = 0;//时钟置为低电平
+ 292   2          {
+ 293   3          if((Data & 0x80) == 0x80)//若发送数据的最高位为1，则发送1
+ 294   3            MOSI = 1;
+ 295   3          else
+ 296   3            MOSI = 0;//最高位数据为0，发送0
+ 297   3            Data = _crol_(Data, 1);//发送数据左移一位
+ 298   3          }
+ 299   2          delayNOP();
+ 300   2          SCK = 1;
+ 301   2          if(n > 0)
+ 302   2          {
+C51 COMPILER V9.56.0.0   20190802___SPI_V2_0                                               08/03/2019 21:16:00 PAGE 6   
+
+ 303   3            data_recv = _crol_(data_recv, 1);
+ 304   3            if(MISO)
+ 305   3              data_recv = data_recv | 0x01;
+ 306   3            else
+ 307   3              data_recv = data_recv & 0xfe;
+ 308   3          }
+ 309   2          delayNOP();
+ 310   2        }
+ 311   1        SS1 = 1;
+ 312   1        delayNOP();
+ 313   1        SS1 = 0;
+ 314   1        return(data_recv);
+ 315   1      }
+ 316          void Delay(unsigned int xms)        
+ 317          {
+ 318   1        unsigned int i,j;
+ 319   1        for(i = xms;i > 0;i--)
+ 320   1          for(j = 112;j > 0;j--);
+ 321   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1964    ----
+   CONSTANT SIZE    =     12    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     12     106
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
